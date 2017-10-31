@@ -159,20 +159,8 @@ Tox *tox_init(){
     to_hex(public_key_str, public_key_bin, TOX_ADDRESS_SIZE);
     DEBUG("Tox", "ID: %.*s", TOX_ADDRESS_SIZE * 2, public_key_str);
 
-
-    TOX_ERR_FRIEND_ADD err;
-    char *id = "8CA4A658C876F39D2BF9B6644B1903629F4AEFDE6EE7CE5F00385926B73B5E78E77EF095B36B";
-    uint8_t *bin_id = hex_string_to_bin(id);
-    uint32_t num = tox_friend_add(tox, bin_id, (const uint8_t *)"Install Gentoo", sizeof("Install Gentoo") - 1, &err);
-    free(bin_id);
-
     if (status == 2) {
         write_config(tox, SAVE_FILE);
-    }
-
-    if (num == UINT32_MAX) {
-        DEBUG("Tox", "Could not add friend %s. Error: %d", id, err);
-        return NULL;
     }
 
     DEBUG("Tox", "Finished initialzing tox");
