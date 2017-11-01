@@ -21,12 +21,16 @@ char *bootstrap_ip = "46.101.197.175";
 char *bootstrap_address = "CD133B521159541FB1D326DE9850F5E56A6C724B5B8E5EB5CD8D950408E95707";
 uint16_t bootstrap_port = 443;
 
-static void friend_message_callback(Tox *tox, uint32_t fid, TOX_MESSAGE_TYPE UNUSED(type), const uint8_t *message,
+static void friend_message_callback(Tox *tox, uint32_t fid, TOX_MESSAGE_TYPE type, const uint8_t *message,
                                     size_t UNUSED(length), void *userdata){
+    if (type != TOX_MESSAGE_TYPE_NORMAL) {
+        return;
+    }
+
     int group_num = 0;
     IRC *irc = userdata;
     int index;
-    switch((char)message[0]){
+    switch ((char)message[0]) {
         case 'i':
             tox_conference_invite(tox, fid, group_num, NULL);
             break;
@@ -43,7 +47,9 @@ static void friend_message_callback(Tox *tox, uint32_t fid, TOX_MESSAGE_TYPE UNU
             break;
         case 'l':
             for (int i = 0; i < irc->num_channels; i++) {
-                tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (const unsigned char *)irc->channels[i].name, strlen(irc->channels[i].name), NULL);
+                if (irc->channels[i].in_channel){
+                    tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (const unsigned char *)irc->channels[i].name, strlen(irc->channels[i].name), NULL);
+                }
             }
             break;
         default:
@@ -54,32 +60,31 @@ static void friend_message_callback(Tox *tox, uint32_t fid, TOX_MESSAGE_TYPE UNU
 
 static void group_message_callback(Tox *tox, uint32_t groupnumber,
                                    uint32_t peer_number, TOX_MESSAGE_TYPE UNUSED(type),
-                                   const uint8_t *message, size_t length, void *userdata){
+                                   const uint8_t *message, size_t UNUSED(length), void *userdata){
 
     if (tox_conference_peer_number_is_ours(tox, groupnumber, peer_number, NULL)) {
         return;
     }
 
     uint8_t name[TOX_MAX_NAME_LENGTH];
-    int name_len = tox_conference_peer_get_name_size(tox, groupnumber, peer_number, NULL);
-    tox_conference_peer_get_name(tox, groupnumber, peer_number, name, NULL);
+    TOX_ERR_CONFERENCE_PEER_QUERY err;
+    int name_len = tox_conference_peer_get_name_size(tox, groupnumber, peer_number, &err);
 
-    if (name_len == 0) {
+    if (name_len == 0 || err != TOX_ERR_CONFERENCE_PEER_QUERY_OK) {
         memcpy(name, "Unknown", 7);
         name_len = 7;
+    } else {
+        tox_conference_peer_get_name(tox, groupnumber, peer_number, name, NULL);
     }
 
     IRC *irc = userdata;
     char *channel = irc_get_channel_by_group(irc, groupnumber);
-    char *msg = malloc(name_len + length + 3);
-    if (!msg) {
-        DEBUG("Tox", "Could not allocate memory for message.");
+    if (!channel) {
+        DEBUG("Tox", "Could not get channel name, unable to send message.");
         return;
     }
 
-    sprintf(msg, "%s: %s", name, message);
-
-    irc_message(irc->sock, channel, (char *)message);
+    irc_message(irc->sock, channel, (char *)name, (char *)message);
 
 }
 
@@ -144,7 +149,8 @@ Tox *tox_init(){
         return NULL;
     }
 
-    tox_self_set_name(tox, (const uint8_t *)"syncbot", sizeof("syncbot") - 1, NULL);
+    tox_self_set_name(tox, (const uint8_t *)NAME, sizeof(NAME) - 1, NULL);
+    tox_self_set_status_message(tox, (const uint8_t *)STATUS, sizeof(STATUS) - 1, NULL);
 
     tox_callback_self_connection_status(tox, &self_connection_change_callback);
     tox_callback_friend_message(tox, &friend_message_callback);
@@ -190,7 +196,7 @@ bool tox_connect(Tox *tox){
 }
 
 void tox_send_group_msg(Tox *tox, uint32_t group_num, char *nick, size_t nick_length, char *msg, size_t msg_length){
-    int len = nick_length + msg_length + 3;
+    size_t len = nick_length + msg_length + 3;
     char *message = malloc(len);
     if (!message) {
         DEBUG("Tox", "Could not allocate memory for group message.");

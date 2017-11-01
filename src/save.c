@@ -11,14 +11,14 @@
 #include <tox/tox.h>
 
 bool write_config(Tox *tox, char *path){
-    FILE *fp = fopen(path, "wb+");
+    FILE *fp = fopen(path, "wb");
     if (!fp) {
         DEBUG("Save", "Can not open: %s", path);
         return false;
     }
 
     size_t size = tox_get_savedata_size(tox);
-    uint8_t *data = malloc(size + 1);
+    uint8_t *data = calloc(1, size + 1);
     if (!data) {
         DEBUG("Save", "Could not allocate memory for save data.");
         return false;

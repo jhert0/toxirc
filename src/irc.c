@@ -14,7 +14,7 @@
 IRC *irc_connect(char *server, int port){
     IRC *irc = malloc(sizeof(IRC));
     if (!irc) {
-        DEBUG("IRC", "Could not allocate array for irc structure.");
+        DEBUG("IRC", "Could not allocate memory for irc structure.");
         return NULL;
     }
 
@@ -164,8 +164,8 @@ int irc_send_fmt(int sock, char *fmt, ...){
     return sent;
 }
 
-void irc_message(int sock, char *channel, char *msg){
-    irc_send_fmt(sock, "PRIVMSG %s %s\r\n", channel, msg);
+void irc_message(int sock, char *channel, char *name, char *msg){
+    irc_send_fmt(sock, "PRIVMSG %s :<%s> %s\r\n", channel, name, msg);
 }
 
 int irc_get_channel_index(IRC *irc, char *channel){

@@ -3,6 +3,9 @@
 
 #include <tox/tox.h>
 
+#define NAME "syncbot"
+#define STATUS "Send me h for more info"
+
 /*
  * Initiliazes tox
  * returns a Tox struct on success

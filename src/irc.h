@@ -73,7 +73,10 @@ int irc_send(int sock, char *msg, int len);
  */
 int irc_send_fmt(int sock, char *fmt, ...);
 
-void irc_message(int sock, char *channel, char *msg);
+/*
+ * Sends the specified name and message to the specified channel
+ */
+void irc_message(int sock, char *channel, char *name, char *msg);
 
 /*
  * Frees the IRC struct and irc->channels.

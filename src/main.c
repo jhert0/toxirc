@@ -18,6 +18,7 @@ bool exit_bot = false;
 
 static void signal_catch(int UNUSED(sig)){
     exit_bot = true;
+    printf("signal caught\n");
 }
 
 int main(void){
@@ -87,7 +88,7 @@ int main(void){
         }
 
         tox_iterate(tox, (void *)irc);
-        usleep(1000 * 50);
+        usleep(tox_iteration_interval(tox));
         bzero(buf, sizeof(buf));
     }
 
