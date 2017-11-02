@@ -8,7 +8,7 @@ HEADERS = $(wildcard src/*.h)
 
 DEBUG = 1
 PREFIX = /usr/local
-EXECUTABLE = syncbot
+EXECUTABLE = toxirc
 
 ifeq ($(DEBUG), 1)
 	CFLAGS += -g

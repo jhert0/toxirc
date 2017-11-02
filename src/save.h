@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <tox/tox.h>
 
-#define SAVE_FILE "syncbot_save.tox" //make this an option or argument
+#define SAVE_FILE "toxirc_save.tox"
 
 /*
  * Writes the tox save data to the specified path

@@ -54,11 +54,11 @@ IRC *irc_connect(char *server, int port){
 }
 
 bool irc_join_channel(IRC *irc, char *channel){
-    if ((irc->num_channels + 1) >= irc->size_channels){
-        DEBUG("IRC", "Reallocating from %d to %d", irc->num_channels, irc->num_channels + 1);
-        void *temp = realloc(irc->channels, irc->num_channels + 1);
+    if ((irc->num_channels + 1) >= irc->size_channels) {
+        DEBUG("IRC", "Reallocating from %d to %d", irc->size_channels, irc->size_channels + 1);
+        void *temp = realloc(irc->channels, irc->size_channels + 1);
         if (!temp) {
-            DEBUG("IRC", "Could not reallocate memory from %d to %d.", irc->num_channels, irc->num_channels + 1);
+            DEBUG("IRC", "Could not reallocate memory from %d to %d.", irc->size_channels, irc->size_channels + 1);
             return false;
         }
 
@@ -119,6 +119,8 @@ void irc_free(IRC *irc){
     }
 
     free(irc);
+
+    irc = NULL;
 }
 
 int irc_send(int sock, char *msg, int len){

@@ -7,7 +7,7 @@
 *.lo
 
 # Executables
-syncbot
+toxirc
 
 # Tox save file
 *.tox

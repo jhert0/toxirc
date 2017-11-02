@@ -3,7 +3,7 @@
 
 #include <tox/tox.h>
 
-#define NAME "syncbot"
+#define NAME "toxirc"
 #define STATUS "Send me help for more info"
 
 /*
