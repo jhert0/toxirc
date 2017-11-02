@@ -1,8 +1,10 @@
 #include "tox.h"
 
+#include "commands.h"
 #include "irc.h"
 #include "logging.h"
 #include "macros.h"
+#include "nodes.h"
 #include "save.h"
 #include "utils.h"
 
@@ -12,55 +14,26 @@
 #include <stdlib.h>
 #include <string.h>
 
-//TODO: Create an array of nodes to bootsrap from
-char *bootstrap_ip = "185.14.30.213";
-char *bootstrap_address = "2555763C8C460495B14157D234DD56B86300A2395554BCAE4621AC345B8C1B1B";
-uint16_t bootstrap_udp_port = 443;
-uint16_t bootstrap_tcp_port = 443;
-
 static void friend_message_callback(Tox *tox, uint32_t fid, TOX_MESSAGE_TYPE type, const uint8_t *message,
-                                    size_t UNUSED(length), void *userdata){
+                                    size_t length, void *userdata){
     if (type != TOX_MESSAGE_TYPE_NORMAL) {
         return;
     }
 
-    int group_num = 0;
     IRC *irc = userdata;
-    int index;
-    switch ((char)message[0]) {
-        case 'i':
-            tox_conference_invite(tox, fid, group_num, NULL);
-            break;
-        case 'h': //TODO: implement help command
-            break;
-        case 'j': //TODO: Parse channel name
-            irc_join_channel(irc, "#synbot_test");
-            TOX_ERR_CONFERENCE_NEW err;
-            irc->channels[irc->num_channels - 1].group_num = tox_conference_new(tox, &err);
-            if (irc->channels[irc->num_channels - 1].group_num == UINT32_MAX) {
-                DEBUG("Tox", "Could not create groupchat. Error number: %d", err);
-            }
-            break;
-        case 'd'://TODO: Parse channel name
-            index = irc_get_channel_index(irc, "#syncbot_test");
-            if (index == -1) {
-                DEBUG("Tox", "Could not get irc channel index.");
-                return;
-            }
+    int cmd_length = command_get_length((char *)message, length);
 
-            irc_leave_channel(irc, index);
-            tox_conference_delete(tox, irc->channels[index].group_num, NULL);
-            break;
-        case 'l':
-            for (int i = 0; i < irc->num_channels; i++) {
-                if (irc->channels[i].in_channel){
-                    tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (const unsigned char *)irc->channels[i].name, strlen(irc->channels[i].name), NULL);
-                }
-            }
-            break;
-        default:
-            tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (const uint8_t *)"Unknown command.", sizeof("Unknown command.") - 1, NULL);
-            break;
+    int arg_length;
+    char *arg = command_get_arg((char *)message, length , cmd_length, &arg_length);
+
+    for (int i = 0; commands[i].cmd; i++) {
+        if (strncmp((char *)message, commands[i].cmd, cmd_length) == 0) {
+            commands[i].func(tox, irc, fid, arg);
+        }
+    }
+
+    if (arg) {
+        free(arg);
     }
 }
 
@@ -77,10 +50,11 @@ static void group_message_callback(Tox *tox, uint32_t groupnumber,
     int name_len = tox_conference_peer_get_name_size(tox, groupnumber, peer_number, &err);
 
     if (name_len == 0 || err != TOX_ERR_CONFERENCE_PEER_QUERY_OK) {
-        memcpy(name, "Unknown", 7);
+        memcpy(name, "unknown", 7);
         name_len = 7;
     } else {
         tox_conference_peer_get_name(tox, groupnumber, peer_number, name, NULL);
+        name[name_len] = '\0';
     }
 
     IRC *irc = userdata;
@@ -102,7 +76,7 @@ static void friend_request_callback(Tox *tox, const uint8_t *public_key, const u
     tox_friend_add_norequest(tox, public_key, &err);
 
     if (err != TOX_ERR_FRIEND_ADD_OK) {
-        DEBUG("Tox", "Error sending friend request. Error number: %d", err);
+        DEBUG("Tox", "Error accepting friend request. Error number: %d", err);
     }
 
     write_config(tox, SAVE_FILE);
@@ -162,17 +136,19 @@ Tox *tox_init(){
 }
 
 bool tox_connect(Tox *tox){
-    uint8_t *key = hex_string_to_bin(bootstrap_address);
-    if (!key) {
-        DEBUG("Tox", "Could not allocate memory for key.");
-        return false;
+    for (int i = 0; nodes[i].ip; i++) {
+        uint8_t *key = hex_string_to_bin(nodes[i].key);
+        if (!key) {
+            DEBUG("Tox", "Could not allocate memory for key.");
+            return false; //Return because it will most likely fail again
+        }
+
+        tox_bootstrap(tox, nodes[i].ip, nodes[i].udp_port, key, NULL);
+        tox_add_tcp_relay(tox, nodes[i].ip, nodes[i].tcp_port, key, NULL);
     }
 
-    tox_bootstrap(tox, bootstrap_ip, bootstrap_udp_port, key, NULL);
-    tox_add_tcp_relay(tox, bootstrap_ip, bootstrap_tcp_port, key, NULL);
-
-    free(key);
     DEBUG("Tox", "Connected to tox network.");
+
     return true;
 }
 
@@ -184,7 +160,7 @@ void tox_group_send_msg(Tox *tox, uint32_t group_num, char *nick, char *msg){
         return;
     }
 
-    int message_length = snprintf(message, size, "%s: %s", nick, msg);
-    tox_conference_send_message(tox, group_num, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)message, message_length, NULL);
+    sprintf(message, "%s: %s", nick, msg);
+    tox_conference_send_message(tox, group_num, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)message, size, NULL);
     free(message);
 }

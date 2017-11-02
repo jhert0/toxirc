@@ -40,8 +40,8 @@ IRC *irc_connect(char *server, int port){
     }
 
     irc_send(irc->sock, "PASS none\n", sizeof("PASS none\n") - 1);
-    irc_send(irc->sock, "NICK syncbot_test\n", sizeof("NICK syncbot_test\n") - 1);
-    irc_send(irc->sock, "USER syncbot_test syncbot syncbot :sync bot\n", sizeof("USER syncbot_test syncbot syncbot :sync bot\n") - 1);
+    irc_send(irc->sock, "NICK toxirc\n", sizeof("NICK toxirc\n") - 1); //TODO: make this an option or argument
+    irc_send(irc->sock, "USER toxirc toxirc toxirc :tox irc\n", sizeof("USER toxirc toxirc toxirc :tox irc\n") - 1);
 
     irc->connected = true;
     irc->channels = NULL;

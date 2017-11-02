@@ -10,7 +10,7 @@
 syncbot
 
 # Tox save file
-syncbot_save
+*.tox
 
 # Editors
 GTAGS

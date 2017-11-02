@@ -39,56 +39,77 @@ int main(void){
         return 2;
     }
 
+    irc_join_channel(irc, "#toxirc");
+    irc->channels[irc->num_channels - 1].group_num = tox_conference_new(tox, NULL);
 
-    irc_join_channel(irc, "#syncbot_test");
-
-    char buf[512], nick[128], msg[512], channel[128];
+    char nick[128], msg[512], channel[128];
     while (!exit_bot) {
-        recv(irc->sock, buf, sizeof(buf) - 1, MSG_NOSIGNAL);
-        if (strncmp(buf, "PING :", 6) == 0) {
-            DEBUG("main", "Ping received");
-            buf[1] = 'O';
-            irc_send(irc->sock, buf, 6);
-        } else if (strncmp(buf, "NOTICE AUTH :", 13) == 0) {
-            continue;
-        } else if (strncmp(buf, "ERROR :", 7) == 0) {
-            DEBUG("main", "Received an error.");
-            //break;
-            continue;
-        } else if (buf[0] == ':') { //TODO: parse channel
-            char *ptr = strtok(buf, "!");
-            bool privmsg = false;
+        int count = 0;
 
-            if (ptr == NULL) {
-                continue;
-            } else {
-                strncpy(nick, &ptr[1], 127);
-                nick[127] = '\0';
-            }
+        ioctl(irc->sock, FIONREAD, &count);
 
-            while ((ptr = strtok(NULL, " ")) != NULL) {
-                if (strcmp(ptr, "PRIVMSG") == 0) {
-                    privmsg = true;
-                    break;
+        if (count > 0) {
+            uint8_t data[count + 1];
+            data[count] = 0;
+            recv(irc->sock, data, count, MSG_NOSIGNAL);
+            printf("%s", data);
+
+            if (strncmp((char *)data, "PING", 4) == 0) {
+                data[1] = 'O';
+
+                int i;
+                for (i = 0; i < count; ++i) {
+                    if (data[i] == '\n') {
+                        ++i;
+                        break;
+                    }
                 }
-            }
 
-            if (!privmsg) {
-                continue;
-            }
+                irc_send(irc->sock, (char *)data, i);
+            } else if(data[0] == ':'){
+                char *ptr = strtok((char *)data, "!");
+                bool privmsg = false;
 
-            if ((ptr = strtok(NULL, ":")) != NULL && (ptr = strtok(NULL, "")) != NULL) {
-                strncpy(msg, ptr, 511);
-                msg[511] = '\0';
-                printf("message: %s\n", msg);
-            }
+                if (ptr == NULL) {
+                    continue;
+                } else {
+                    strncpy(nick, &ptr[1], 127);
+                    nick[127] = '\0';
+                }
 
-            tox_group_send_msg(tox, 0, nick, msg); //TODO: use the channel name to get the group number
+                while ((ptr = strtok(NULL, " ")) != NULL) {
+                    if (strcmp(ptr, "PRIVMSG") == 0) {
+                        privmsg = true;
+                        break;
+                    }
+                }
+
+                if (!privmsg) {
+                    continue;
+                }
+
+                if ((ptr = strtok(NULL, ":")) != NULL && (ptr = strtok(NULL, "")) != NULL) {
+                    strncpy(msg, ptr, 511);
+                    msg[511] = '\0';
+                    printf("message: %s\n", msg);
+                }
+
+                tox_group_send_msg(tox, 0, nick, msg); //TODO: use the channel name to get the group number
+            }
+        }
+
+        int error = 0;
+        socklen_t len = sizeof(error);
+
+        if (irc->sock < 0 || getsockopt(irc->sock, SOL_SOCKET, SO_ERROR, &error, &len) != 0) {
+            DEBUG("main", "Socket has gone bad. Reconnecting...");
+            irc_disconnect(irc);
+            irc_free(irc);
+            irc = irc_connect("71.11.84.232", 667);
         }
 
         tox_iterate(tox, irc);
         usleep(tox_iteration_interval(tox));
-        bzero(buf, sizeof(buf));
     }
 
     irc_disconnect(irc);

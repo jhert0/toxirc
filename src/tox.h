@@ -4,7 +4,7 @@
 #include <tox/tox.h>
 
 #define NAME "syncbot"
-#define STATUS "Send me h for more info"
+#define STATUS "Send me help for more info"
 
 /*
  * Initiliazes tox
