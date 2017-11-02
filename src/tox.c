@@ -13,9 +13,10 @@
 #include <string.h>
 
 //TODO: Create an array of nodes to bootsrap from
-char *bootstrap_ip = "46.101.197.175";
-char *bootstrap_address = "CD133B521159541FB1D326DE9850F5E56A6C724B5B8E5EB5CD8D950408E95707";
-uint16_t bootstrap_port = 443;
+char *bootstrap_ip = "185.14.30.213";
+char *bootstrap_address = "2555763C8C460495B14157D234DD56B86300A2395554BCAE4621AC345B8C1B1B";
+uint16_t bootstrap_udp_port = 443;
+uint16_t bootstrap_tcp_port = 443;
 
 static void friend_message_callback(Tox *tox, uint32_t fid, TOX_MESSAGE_TYPE type, const uint8_t *message,
                                     size_t UNUSED(length), void *userdata){
@@ -105,8 +106,6 @@ static void friend_request_callback(Tox *tox, const uint8_t *public_key, const u
     }
 
     write_config(tox, SAVE_FILE);
-
-    DEBUG("Tox", "Add friend: %s.", public_key);
 }
 
 static void self_connection_change_callback(Tox *UNUSED(tox), TOX_CONNECTION status, void *UNUSED(userdata)) {
@@ -169,14 +168,8 @@ bool tox_connect(Tox *tox){
         return false;
     }
 
-    TOX_ERR_BOOTSTRAP err;
-    tox_bootstrap(tox, bootstrap_ip, bootstrap_port, key, &err);
-
-    if (err != TOX_ERR_BOOTSTRAP_OK) {
-        DEBUG("Tox", "Could not bootstrap with: ip: %s port: %d key: %s", bootstrap_ip, bootstrap_port, key);
-        free(key);
-        return false;
-    }
+    tox_bootstrap(tox, bootstrap_ip, bootstrap_udp_port, key, NULL);
+    tox_add_tcp_relay(tox, bootstrap_ip, bootstrap_tcp_port, key, NULL);
 
     free(key);
     DEBUG("Tox", "Connected to tox network.");

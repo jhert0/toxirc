@@ -73,7 +73,6 @@ bool irc_join_channel(IRC *irc, char *channel){
 
     int index = irc->num_channels - 1;
     irc->channels[index].name = channel;
-    irc->channels[index].index = index;
     irc->channels[index].in_channel = true;
 
     DEBUG("IRC", "Joining channel: %s", channel);
@@ -101,7 +100,7 @@ void irc_disconnect(IRC *irc){
 void irc_leave_all_channels(IRC *irc){
     for (int i = 0; i < irc->num_channels; i++) {
         if (irc->channels[i].in_channel) {
-            irc_leave_channel(irc, irc->channels[i].index);
+            irc_leave_channel(irc, i);
         }
     }
 }
@@ -164,8 +163,8 @@ int irc_send_fmt(int sock, char *fmt, ...){
     return sent;
 }
 
-void irc_message(int sock, char *channel, char *name, char *msg){
-    irc_send_fmt(sock, "PRIVMSG %s :<%s> %s\r\n", channel, name, msg);
+int irc_message(int sock, char *channel, char *name, char *msg){
+    return irc_send_fmt(sock, "PRIVMSG %s :<%s> %s\r\n", channel, name, msg);
 }
 
 int irc_get_channel_index(IRC *irc, char *channel){

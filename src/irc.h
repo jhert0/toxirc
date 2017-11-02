@@ -8,7 +8,6 @@
 struct channel {
     char *name;
     uint32_t group_num;
-    int index;
     bool in_channel;
 };
 
@@ -76,7 +75,7 @@ int irc_send_fmt(int sock, char *fmt, ...);
 /*
  * Sends the specified name and message to the specified channel
  */
-void irc_message(int sock, char *channel, char *name, char *msg);
+int irc_message(int sock, char *channel, char *name, char *msg);
 
 /*
  * Frees the IRC struct and irc->channels.
