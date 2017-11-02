@@ -3,18 +3,14 @@
 #include "irc.h"
 #include "logging.h"
 #include "macros.h"
-#include "utils.h"
 #include "save.h"
+#include "utils.h"
 
 #include <tox/tox.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-
-uint32_t *groups = NULL;
-int num_groups = 0;
-int size_groups = 0;
 
 //TODO: Create an array of nodes to bootsrap from
 char *bootstrap_ip = "46.101.197.175";
@@ -38,11 +34,20 @@ static void friend_message_callback(Tox *tox, uint32_t fid, TOX_MESSAGE_TYPE typ
             break;
         case 'j': //TODO: Parse channel name
             irc_join_channel(irc, "#synbot_test");
-            irc->channels[irc->num_channels - 1].group_num = tox_create_groupchat(tox);
+            TOX_ERR_CONFERENCE_NEW err;
+            irc->channels[irc->num_channels - 1].group_num = tox_conference_new(tox, &err);
+            if (irc->channels[irc->num_channels - 1].group_num == UINT32_MAX) {
+                DEBUG("Tox", "Could not create groupchat. Error number: %d", err);
+            }
             break;
         case 'd'://TODO: Parse channel name
             index = irc_get_channel_index(irc, "#syncbot_test");
-            irc_leave_channel(irc, 0);
+            if (index == -1) {
+                DEBUG("Tox", "Could not get irc channel index.");
+                return;
+            }
+
+            irc_leave_channel(irc, index);
             tox_conference_delete(tox, irc->channels[index].group_num, NULL);
             break;
         case 'l':
@@ -88,28 +93,10 @@ static void group_message_callback(Tox *tox, uint32_t groupnumber,
 
 }
 
-static void group_invite_callback(Tox *tox, uint32_t fid, TOX_CONFERENCE_TYPE UNUSED(type),
-                                  const uint8_t *data, size_t length, void *UNUSED(userdata)){
-    if ((num_groups + 1) >= size_groups) {
-        uint32_t *temp = realloc(groups, num_groups + 1);
-        if (!temp) {
-            DEBUG("Tox", "Could not reallocate groups array from %d to %d", num_groups, num_groups + 1);
-            return;
-        }
-
-        groups = temp;
-
-        size_groups++;
-    }
-
-    num_groups++;
-
-    groups[num_groups - 1] = tox_conference_join(tox, fid, data, length, NULL);
-}
-
 static void friend_request_callback(Tox *tox, const uint8_t *public_key, const uint8_t *UNUSED(data),
                                     size_t UNUSED(length), void *UNUSED(userdata)){
     DEBUG("Tox", "Received a friend request.");
+
     TOX_ERR_FRIEND_ADD err;
     tox_friend_add_norequest(tox, public_key, &err);
 
@@ -118,6 +105,8 @@ static void friend_request_callback(Tox *tox, const uint8_t *public_key, const u
     }
 
     write_config(tox, SAVE_FILE);
+
+    DEBUG("Tox", "Add friend: %s.", public_key);
 }
 
 static void self_connection_change_callback(Tox *UNUSED(tox), TOX_CONNECTION status, void *UNUSED(userdata)) {
@@ -155,7 +144,6 @@ Tox *tox_init(){
     tox_callback_self_connection_status(tox, &self_connection_change_callback);
     tox_callback_friend_message(tox, &friend_message_callback);
     tox_callback_friend_request(tox, &friend_request_callback);
-    tox_callback_conference_invite(tox, &group_invite_callback);
     tox_callback_conference_message(tox, &group_message_callback);
 
     uint8_t public_key_bin[TOX_ADDRESS_SIZE];
@@ -195,19 +183,15 @@ bool tox_connect(Tox *tox){
     return true;
 }
 
-void tox_send_group_msg(Tox *tox, uint32_t group_num, char *nick, size_t nick_length, char *msg, size_t msg_length){
-    size_t len = nick_length + msg_length + 3;
-    char *message = malloc(len);
+void tox_group_send_msg(Tox *tox, uint32_t group_num, char *nick, char *msg){
+    size_t size = strlen(nick) + strlen(msg) + 3;
+    char *message = malloc(size);
     if (!message) {
         DEBUG("Tox", "Could not allocate memory for group message.");
         return;
     }
 
-    snprintf(message, len, "%s: %s", nick, msg);
-    tox_conference_send_message(tox, group_num, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)message, len, NULL);
+    int message_length = snprintf(message, size, "%s: %s", nick, msg);
+    tox_conference_send_message(tox, group_num, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)message, message_length, NULL);
     free(message);
-}
-
-int tox_create_groupchat(Tox *tox){
-    return 0;
 }

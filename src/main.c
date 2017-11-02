@@ -53,7 +53,6 @@ int main(void){
             continue;
         } else if (strncmp(buf, "ERROR :", 7) == 0) {
             DEBUG("main", "Received an error.");
-            //irc->connected = false;
             //break;
             continue;
         } else if (buf[0] == ':') { //TODO: parse channel
@@ -81,13 +80,13 @@ int main(void){
             if ((ptr = strtok(NULL, ":")) != NULL && (ptr = strtok(NULL, "")) != NULL) {
                 strncpy(msg, ptr, 511);
                 msg[511] = '\0';
-                printf("%s\n", msg);
+                printf("message: %s\n", msg);
             }
 
-            tox_send_group_msg(tox, 0, nick, strlen(nick), msg, strlen(msg)); //TODO: use the channel name to get the group number
+            tox_group_send_msg(tox, 0, nick, msg); //TODO: use the channel name to get the group number
         }
 
-        tox_iterate(tox, (void *)irc);
+        tox_iterate(tox, irc);
         usleep(tox_iteration_interval(tox));
         bzero(buf, sizeof(buf));
     }

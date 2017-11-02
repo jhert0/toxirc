@@ -13,14 +13,13 @@
  */
 Tox *tox_init();
 
+/*
+ * Connects you to the Tox network
+ * on success returns true
+ * on failure returns false
+ */
 bool tox_connect(Tox *tox);
 
-void tox_send_group_msg(Tox *tox, uint32_t group_num, char *nick, size_t nick_lengh, char *msg, size_t msg_length);
-
-/*
- * Creates a tox groupchat
- * returns group number on success
- */
-int tox_create_groupchat(Tox *tox);
+void tox_group_send_msg(Tox *tox, uint32_t group_num, char *nick, char *msg);
 
 #endif
