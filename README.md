@@ -12,3 +12,10 @@ git clone https://github.com/endoffile78/toxirc
 cd toxirc
 make
 ```
+## Tox ID
+
+Soon
+
+## License
+
+MIT
