@@ -6,6 +6,7 @@
 #include "macros.h"
 #include "nodes.h"
 #include "save.h"
+#include "settings.h"
 #include "utils.h"
 
 #include <tox/tox.h>
@@ -21,15 +22,31 @@ static void friend_message_callback(Tox *tox, uint32_t fid, TOX_MESSAGE_TYPE typ
     }
 
     IRC *irc = userdata;
-    int cmd_length = command_get_length((char *)message, length);
+
+    char msg[TOX_MAX_MESSAGE_LENGTH];
+    length = MIN(TOX_MAX_MESSAGE_LENGTH - 1, length);
+    memcpy(msg, message, length);
+    msg[length] = '\0';
+
+    length++;
+
+    size_t cmd_length = command_parse(msg, length);
 
     int arg_length;
-    char *arg = command_get_arg((char *)message, length , cmd_length, &arg_length);
+    char *arg = command_parse_arg(msg, length, cmd_length, &arg_length);
 
+    bool valid = false;
     for (int i = 0; commands[i].cmd; i++) {
-        if (strncmp((char *)message, commands[i].cmd, cmd_length) == 0) {
+        if (strncmp((char *)msg, commands[i].cmd, strlen(commands[i].cmd)) == 0) {
             commands[i].func(tox, irc, fid, arg);
+            valid = true;
         }
+    }
+
+    if (!valid) {
+        tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL,
+                                (uint8_t *)"Invalid command send me help to find out what commands I support",
+                                sizeof("Invalid command send me help to find out what commands I support") - 1, NULL);
     }
 
     if (arg) {
@@ -54,8 +71,9 @@ static void group_message_callback(Tox *tox, uint32_t groupnumber,
         name_len = 7;
     } else {
         tox_conference_peer_get_name(tox, groupnumber, peer_number, name, NULL);
-        name[name_len] = '\0';
     }
+
+    name[name_len] = '\0';
 
     IRC *irc = userdata;
     char *channel = irc_get_channel_by_group(irc, groupnumber);
@@ -70,13 +88,12 @@ static void group_message_callback(Tox *tox, uint32_t groupnumber,
 
 static void friend_request_callback(Tox *tox, const uint8_t *public_key, const uint8_t *UNUSED(data),
                                     size_t UNUSED(length), void *UNUSED(userdata)){
-    DEBUG("Tox", "Received a friend request.");
-
     TOX_ERR_FRIEND_ADD err;
     tox_friend_add_norequest(tox, public_key, &err);
 
     if (err != TOX_ERR_FRIEND_ADD_OK) {
         DEBUG("Tox", "Error accepting friend request. Error number: %d", err);
+        return;
     }
 
     write_config(tox, SAVE_FILE);
@@ -111,8 +128,8 @@ Tox *tox_init(){
         return NULL;
     }
 
-    tox_self_set_name(tox, (const uint8_t *)NAME, sizeof(NAME) - 1, NULL);
-    tox_self_set_status_message(tox, (const uint8_t *)STATUS, sizeof(STATUS) - 1, NULL);
+    tox_self_set_name(tox, (const uint8_t *)settings.name, strlen(settings.name), NULL);
+    tox_self_set_status_message(tox, (const uint8_t *)settings.status, strlen(settings.status), NULL);
 
     tox_callback_self_connection_status(tox, &self_connection_change_callback);
     tox_callback_friend_message(tox, &friend_message_callback);
@@ -163,4 +180,25 @@ void tox_group_send_msg(Tox *tox, uint32_t group_num, char *nick, char *msg){
     sprintf(message, "%s: %s", nick, msg);
     tox_conference_send_message(tox, group_num, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)message, size, NULL);
     free(message);
+}
+
+bool tox_is_friend_master(Tox *tox, int fid){
+    uint8_t public_key_bin[TOX_ADDRESS_SIZE];
+    if (tox_friend_get_public_key(tox, fid, public_key_bin, NULL) == 0) {
+        return false;
+    }
+
+    uint8_t *key = hex_string_to_bin(settings.master);
+    if (!key) {
+        return false;
+    }
+
+    if (strncmp((char *)public_key_bin, (char *)key, TOX_PUBLIC_KEY_SIZE) != 0) {
+        free(key);
+        return false;
+    }
+
+    free(key);
+
+    return true;
 }

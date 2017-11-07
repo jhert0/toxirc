@@ -3,9 +3,6 @@
 
 #include <tox/tox.h>
 
-#define NAME "toxirc"
-#define STATUS "Send me help for more info"
-
 /*
  * Initiliazes tox
  * returns a Tox struct on success
@@ -21,5 +18,7 @@ Tox *tox_init();
 bool tox_connect(Tox *tox);
 
 void tox_group_send_msg(Tox *tox, uint32_t group_num, char *nick, char *msg);
+
+bool tox_is_friend_master(Tox *tox, int fid);
 
 #endif

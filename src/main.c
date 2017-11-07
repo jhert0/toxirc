@@ -12,6 +12,7 @@
 #include "logging.h"
 #include "macros.h"
 #include "save.h"
+#include "settings.h"
 #include "tox.h"
 
 bool exit_bot = false;
@@ -66,7 +67,7 @@ int main(void){
                 }
 
                 irc_send(irc->sock, (char *)data, i);
-            } else if(data[0] == ':'){
+            } else if(data[0] == ':') {
                 char *ptr = strtok((char *)data, "!");
                 bool privmsg = false;
 
@@ -75,6 +76,10 @@ int main(void){
                 } else {
                     strncpy(nick, &ptr[1], 127);
                     nick[127] = '\0';
+                }
+
+                if (strcmp(nick, settings.name) == 0) {
+                    continue;
                 }
 
                 while ((ptr = strtok(NULL, " ")) != NULL) {

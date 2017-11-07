@@ -1,6 +1,7 @@
 #include "irc.h"
 
 #include "logging.h"
+#include "settings.h"
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -40,8 +41,8 @@ IRC *irc_connect(char *server, int port){
     }
 
     irc_send(irc->sock, "PASS none\n", sizeof("PASS none\n") - 1);
-    irc_send(irc->sock, "NICK toxirc\n", sizeof("NICK toxirc\n") - 1); //TODO: make this an option or argument
-    irc_send(irc->sock, "USER toxirc toxirc toxirc :tox irc\n", sizeof("USER toxirc toxirc toxirc :tox irc\n") - 1);
+    irc_send_fmt(irc->sock, "NICK %s\n", settings.name);
+    irc_send_fmt(irc->sock, "USER %s %s %s :%s", settings.name, settings.name, settings.name, settings.name);
 
     irc->connected = true;
     irc->channels = NULL;

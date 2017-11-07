@@ -1,6 +1,7 @@
 #include "save.h"
 
 #include "logging.h"
+#include "settings.h"
 #include "utils.h"
 
 #include <stdio.h>
@@ -46,9 +47,8 @@ Tox *load_config(char *path, int *status){
     memset(&options, 0, sizeof(struct Tox_Options));
     tox_options_default(&options);
 
-    //TODO: make these an argument or option
-    tox_options_set_udp_enabled(&options, false);
-    tox_options_set_ipv6_enabled(&options, false);
+    tox_options_set_udp_enabled(&options, settings.udp);
+    tox_options_set_ipv6_enabled(&options, settings.ipv6);
 
     int fd = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); //TODO: this needs to be improved
     FILE *fp = fdopen(fd, "rb");

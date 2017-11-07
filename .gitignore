@@ -12,6 +12,9 @@ toxirc
 # Tox save file
 *.tox
 
+# Settings
+toxirc.ini
+
 # Editors
 GTAGS
 GPATH
