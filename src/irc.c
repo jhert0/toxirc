@@ -42,7 +42,7 @@ IRC *irc_connect(char *server, int port){
 
     irc_send(irc->sock, "PASS none\n", sizeof("PASS none\n") - 1);
     irc_send_fmt(irc->sock, "NICK %s\n", settings.name);
-    irc_send_fmt(irc->sock, "USER %s %s %s :%s", settings.name, settings.name, settings.name, settings.name);
+    irc_send_fmt(irc->sock, "USER %s %s %s :%s\n", settings.name, settings.name, settings.name, settings.name);
 
     irc->connected = true;
     irc->channels = NULL;
