@@ -24,8 +24,6 @@ struct irc {
 typedef struct irc IRC;
 typedef struct channel CHANNEL;
 
-#define SILENT_TIMEOUT 20
-
 /*
  * Connects to the IRC server and creates the IRC struct
  * returns a IRC struct on success
@@ -89,6 +87,13 @@ void irc_free(IRC *irc);
  * returns -1 on failure
  */
 int irc_get_channel_index(IRC *irc, char *channel);
+
+/*
+ * Gets the specified channel's group number
+ * returns the group number on success
+ * returns UINT32_MAX on failure
+ */
+uint32_t irc_get_channel_group(IRC *irc, char *channel);
 
 /*
  * Gets the channel name for the specified group number

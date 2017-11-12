@@ -180,6 +180,16 @@ int irc_get_channel_index(IRC *irc, char *channel){
     return -1;
 }
 
+uint32_t irc_get_channel_group(IRC *irc, char *channel){
+    for (int i = 0; i < irc->num_channels; i++){
+        if (strcmp(channel, irc->channels[i].name) == 0) {
+            return i;
+        }
+    }
+
+    return UINT32_MAX;
+}
+
 char *irc_get_channel_by_group(IRC *irc, uint32_t group_num){
     for (int i = 0; i < irc->num_channels; i++) {
         if (irc->channels[i].group_num == group_num) {
