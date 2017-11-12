@@ -40,7 +40,7 @@ int main(void){
         return 2;
     }
 
-    irc_join_channel(irc, "#toxirc");
+    irc_join_channel(irc, settings.default_channel);
     irc->channels[irc->num_channels - 1].group_num = tox_conference_new(tox, NULL);
 
     char nick[128], msg[512], channel[128];

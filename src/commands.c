@@ -29,7 +29,7 @@ size_t command_parse(char *msg, size_t msg_length){
 char *command_parse_arg(char *msg, size_t msg_length, size_t cmd_length, int *arg_length){
     *arg_length = 0;
 
-    if (cmd_length == 0 || msg_length == cmd_length) {
+    if (cmd_length == 0 || (msg_length - 1) == cmd_length) {
         return NULL;
     }
 
@@ -54,6 +54,7 @@ static bool command_join(Tox *tox, IRC *irc, int fid, char *arg);
 static bool command_leave(Tox *tox, IRC *irc, int fid, char *arg);
 static bool command_list(Tox *tox, IRC *irc, int fid, char *arg);
 static bool command_id(Tox *tox, IRC *irc, int fid, char *arg);
+static bool command_info(Tox *tox, IRC *irc, int fid, char *arg);
 static bool command_help(Tox *tox, IRC *irc, int fid, char *arg);
 
 struct Command commands[256] = {
@@ -62,6 +63,7 @@ struct Command commands[256] = {
     { "leave",  "Leaves the specified channel.",                            true,  command_leave  },
     { "list",   "List all channels I am in.",                               false, command_list   },
     { "id",     "Prints my tox ID.",                                        false, command_id     },
+    { "info",   "Info about the bot",                                       false, command_info   },
     { "help",   "This message.",                                            false, command_help   },
     { NULL,     NULL,                                                       false, NULL           },
 };
@@ -169,6 +171,27 @@ static bool command_help(Tox *tox, IRC *UNUSED(irc), int fid, char *UNUSED(arg))
             free(message);
         }
     }
+
+    return true;
+}
+
+static bool command_info(Tox *tox, IRC *UNUSED(irc), int fid, char *UNUSED(arg)){
+    int num_frends = tox_self_get_friend_list_size(tox);
+
+    uint32_t friends[num_frends];
+    tox_self_get_friend_list(tox, friends);
+
+    int online = 0;
+    for (int i = 0; i < num_frends; i++){
+        if (tox_friend_get_connection_status(tox, i, NULL) != TOX_CONNECTION_NONE) {
+            online++;
+        }
+    }
+
+    char message[200];
+    int length = snprintf(message, sizeof(message), "I am friends with %d people. %d of them are online.", num_frends, online);
+
+    tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)message, length, NULL);
 
     return true;
 }
