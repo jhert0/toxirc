@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra
 LDFLAGS = -ltoxcore
 
-SRC = $(wildcard src/*.c)
+SRC = $(wildcard src/*.c) third-party/minini/dev/minIni.c
 OBJ = $(SRC:.c=.o)
 HEADERS = $(wildcard src/*.h)
 

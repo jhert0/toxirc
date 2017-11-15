@@ -1,0 +1,3 @@
+[submodule "third-party/minini"]
+	path = third-party/minini
+	url = https://github.com/compuphase/minIni
