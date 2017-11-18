@@ -43,14 +43,16 @@ static void friend_message_callback(Tox *tox, uint32_t fid, TOX_MESSAGE_TYPE typ
         }
     }
 
+    if (arg) {
+        printf("arg: %s\n", arg);
+        printf("arg_length: %d\n", arg_length);
+        free(arg);
+    }
+
     if (!valid) {
         tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL,
                                 (uint8_t *)"Invalid command send me help to find out what commands I support",
                                 sizeof("Invalid command send me help to find out what commands I support") - 1, NULL);
-    }
-
-    if (arg) {
-        free(arg);
     }
 }
 
@@ -83,7 +85,6 @@ static void group_message_callback(Tox *tox, uint32_t groupnumber,
     }
 
     irc_message(irc->sock, channel, (char *)name, (char *)message);
-
 }
 
 static void friend_request_callback(Tox *tox, const uint8_t *public_key, const uint8_t *UNUSED(data),

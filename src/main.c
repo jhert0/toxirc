@@ -40,11 +40,21 @@ int main(void){
 
     IRC *irc = irc_connect(settings.server, settings.port);
     if (!irc) {
+        tox_kill(tox);
         return 2;
     }
 
-    irc_join_channel(irc, settings.default_channel);
-    irc->channels[irc->num_channels - 1].group_num = tox_conference_new(tox, NULL);
+    TOX_ERR_CONFERENCE_NEW err;
+    uint32_t group_num = tox_conference_new(tox, &err);
+    if (group_num == UINT32_MAX){
+        DEBUG("main", "Could not create groupchat for default group.");
+        tox_kill(tox);
+        irc_disconnect(irc);
+        irc_free(irc);
+        return 3;
+    }
+
+    irc_join_channel(irc, settings.default_channel, group_num);
 
     char nick[128], msg[512], channel[128];
     while (!exit_bot) {

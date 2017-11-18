@@ -15,14 +15,14 @@ struct irc {
     char *server;
     char *port;
     struct channel *channels;
-    int num_channels;
-    int size_channels;
+    uint32_t num_channels;
+    uint32_t size_channels;
     int sock;
     bool connected;
 };
 
 typedef struct irc IRC;
-typedef struct channel CHANNEL;
+typedef struct channel Channel;
 
 #define IRC_MAX_CHANNEL_LENGTH 50
 #define IRC_PORT_LENGTH 5
@@ -39,7 +39,7 @@ IRC *irc_connect(char *server, char *port);
  * returns true on success
  * returns false on failure
  */
-bool irc_join_channel(IRC *irc, char *channel);
+bool irc_join_channel(IRC *irc, char *channel, uint32_t group_num);
 
 /*
  * Leaves the specified IRC channel

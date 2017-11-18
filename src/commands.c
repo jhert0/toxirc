@@ -95,21 +95,21 @@ static bool command_join(Tox *tox, IRC *irc, int fid, char *arg){
     }
 
     int index = irc_get_channel_index(irc, arg);
-    if (index != -1){
+    if (index != -1) {
         tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)"I am already in that channel.", sizeof("I am already in that channel.") - 1, NULL);
         return false;
     }
 
-    irc_join_channel(irc, arg);
-
     TOX_ERR_CONFERENCE_NEW err;
-    irc->channels[irc->num_channels - 1].group_num = tox_conference_new(tox, &err);
-    if (irc->channels[irc->num_channels - 1].group_num == UINT32_MAX) {
+    uint32_t group_num = tox_conference_new(tox, &err);
+    if (group_num == UINT32_MAX) {
         DEBUG("Tox", "Could not create groupchat. Error number: %d", err);
         return false;
     }
 
-    tox_conference_invite(tox, fid, irc->channels[irc->num_channels - 1].group_num, NULL);
+    irc_join_channel(irc, arg, group_num);
+
+    tox_conference_invite(tox, fid, group_num, NULL);
 
     return true;
 }
@@ -137,9 +137,9 @@ static bool command_leave(Tox *tox, IRC *irc, int fid, char *arg){
 }
 
 static bool command_list(Tox *tox, IRC *irc, int fid, char *UNUSED(arg)){
-    for (int i = 0; i < irc->num_channels; i++) {
-        if (irc->channels[i].in_channel){
-            tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (const unsigned char *)irc->channels[i].name, strlen(irc->channels[i].name), NULL);
+    for (unsigned int i = 0; i < irc->num_channels; i++) {
+        if (irc->channels[i].in_channel) {
+            tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (const uint8_t *)irc->channels[i].name, strlen(irc->channels[i].name), NULL);
         }
     }
 
@@ -159,7 +159,7 @@ static bool command_id(Tox *tox, IRC *UNUSED(irc), int fid, char *UNUSED(arg)){
 }
 
 static bool command_help(Tox *tox, IRC *UNUSED(irc), int fid, char *UNUSED(arg)){
-    for (int i = 0; commands[i].cmd; i++){
+    for (int i = 0; commands[i].cmd; i++) {
         if (!commands[i].master || (commands[i].master && tox_is_friend_master(tox, fid))) {
             char *message = malloc(strlen(commands[i].cmd) + strlen(commands[i].desc) + 3);
             if (!message) {
@@ -184,7 +184,7 @@ static bool command_info(Tox *tox, IRC *UNUSED(irc), int fid, char *UNUSED(arg))
     tox_self_get_friend_list(tox, friends);
 
     int online = 0;
-    for (int i = 0; i < num_frends; i++){
+    for (int i = 0; i < num_frends; i++) {
         if (tox_friend_get_connection_status(tox, i, NULL) != TOX_CONNECTION_NONE) {
             online++;
         }
@@ -199,7 +199,7 @@ static bool command_info(Tox *tox, IRC *UNUSED(irc), int fid, char *UNUSED(arg))
 }
 
 static bool command_leave_all(Tox *tox, IRC *irc, int fid , char *UNUSED(arg)){
-    if (!tox_is_friend_master(tox, fid)){
+    if (!tox_is_friend_master(tox, fid)) {
         return false;
     }
 

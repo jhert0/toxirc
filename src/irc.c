@@ -70,27 +70,29 @@ IRC *irc_connect(char *server, char *port){
     return irc;
 }
 
-bool irc_join_channel(IRC *irc, char *channel){
-    if ((irc->num_channels + 1) >= irc->size_channels) {
-        DEBUG("IRC", "Reallocating from %d to %d", irc->size_channels, irc->size_channels + 1);
-        void *temp = realloc(irc->channels, irc->size_channels + 1);
+bool irc_join_channel(IRC *irc, char *channel, uint32_t group_num){
+    if (group_num >= irc->size_channels) {
+        DEBUG("IRC", "Reallocating from %d to %d", irc->size_channels, group_num + 1);
+        void *temp = realloc(irc->channels, sizeof(Channel) * (group_num + 1));
         if (!temp) {
-            DEBUG("IRC", "Could not reallocate memory from %d to %d.", irc->size_channels, irc->size_channels + 1);
+            DEBUG("IRC", "Could not reallocate memory from %d to %d.", irc->size_channels, group_num);
             return false;
         }
 
         irc->channels = temp;
 
         irc->size_channels++;
+        irc->num_channels++;
+
+        memset(&irc->channels[irc->num_channels - 1], 0, sizeof(Channel));
     }
 
     irc_send_fmt(irc->sock, "JOIN %s\n", channel);
 
-    irc->num_channels++;
-
     int index = irc->num_channels - 1;
     irc->channels[index].name = channel;
     irc->channels[index].in_channel = true;
+    irc->channels[index].group_num = group_num;
 
     DEBUG("IRC", "Joining channel: %s", channel);
 
@@ -98,11 +100,11 @@ bool irc_join_channel(IRC *irc, char *channel){
 }
 
 bool irc_leave_channel(IRC *irc, int index){
-    irc->num_channels--;
-
     irc_send_fmt(irc->sock, "PART %s\n", irc->channels[index].name);
 
-    irc->channels[index].in_channel = false;
+    memset(&irc->channels[index], 0, sizeof(Channel));
+
+    irc->num_channels--;
 
     return true;
 }
@@ -115,7 +117,7 @@ void irc_disconnect(IRC *irc){
 }
 
 void irc_leave_all_channels(IRC *irc){
-    for (int i = 0; i < irc->num_channels; i++) {
+    for (unsigned int i = 0; i < irc->num_channels; i++) {
         if (irc->channels[i].in_channel) {
             irc_leave_channel(irc, i);
         }
@@ -187,8 +189,9 @@ int irc_message(int sock, char *channel, char *name, char *msg){
 }
 
 int irc_get_channel_index(IRC *irc, char *channel){
-    for (int i = 0; i < irc->num_channels; i++) {
+    for (unsigned int i = 0; i < irc->num_channels; i++) {
         if (strcmp(channel, irc->channels[i].name) == 0) {
+            printf("match: %s %s\n", channel, irc->channels[i].name);
             return i;
         }
     }
@@ -197,7 +200,7 @@ int irc_get_channel_index(IRC *irc, char *channel){
 }
 
 uint32_t irc_get_channel_group(IRC *irc, char *channel){
-    for (int i = 0; i < irc->num_channels; i++){
+    for (unsigned int i = 0; i < irc->num_channels; i++){
         if (strcmp(channel, irc->channels[i].name) == 0) {
             return i;
         }
@@ -207,7 +210,7 @@ uint32_t irc_get_channel_group(IRC *irc, char *channel){
 }
 
 char *irc_get_channel_by_group(IRC *irc, uint32_t group_num){
-    for (int i = 0; i < irc->num_channels; i++) {
+    for (unsigned int i = 0; i < irc->num_channels; i++) {
         if (irc->channels[i].group_num == group_num) {
             return irc->channels[i].name;
         }
