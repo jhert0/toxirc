@@ -55,17 +55,19 @@ static bool command_leave(Tox *tox, IRC *irc, int fid, char *arg);
 static bool command_list(Tox *tox, IRC *irc, int fid, char *arg);
 static bool command_id(Tox *tox, IRC *irc, int fid, char *arg);
 static bool command_info(Tox *tox, IRC *irc, int fid, char *arg);
+static bool command_leave_all(Tox *tox, IRC *irc, int fid, char *arg);
 static bool command_help(Tox *tox, IRC *irc, int fid, char *arg);
 
 struct Command commands[256] = {
-    { "invite", "Request an invite to the default channel or specify one.", false, command_invite },
-    { "join",   "Joins the specified channel.",                             false, command_join   },
-    { "leave",  "Leaves the specified channel.",                            true,  command_leave  },
-    { "list",   "List all channels I am in.",                               false, command_list   },
-    { "id",     "Prints my tox ID.",                                        false, command_id     },
-    { "info",   "Info about the bot",                                       false, command_info   },
-    { "help",   "This message.",                                            false, command_help   },
-    { NULL,     NULL,                                                       false, NULL           },
+    { "invite",    "Request an invite to the default channel or specify one.", false, command_invite    },
+    { "join",      "Joins the specified channel.",                             false, command_join      },
+    { "leave",     "Leaves the specified channel.",                            true,  command_leave     },
+    { "list",      "List all channels I am in.",                               false, command_list      },
+    { "id",        "Prints my tox ID.",                                        false, command_id        },
+    { "info",      "Info about the bot",                                       false, command_info      },
+    { "leave_all", "leaves all channels",                                      true,  command_leave_all },
+    { "help",      "This message.",                                            false, command_help      },
+    { NULL,        NULL,                                                       false, NULL              },
 };
 
 static bool command_invite(Tox *tox, IRC *irc, int fid, char *arg){
@@ -192,6 +194,16 @@ static bool command_info(Tox *tox, IRC *UNUSED(irc), int fid, char *UNUSED(arg))
     int length = snprintf(message, sizeof(message), "I am friends with %d people. %d of them are online.", num_frends, online);
 
     tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)message, length, NULL);
+
+    return true;
+}
+
+static bool command_leave_all(Tox *tox, IRC *irc, int fid , char *UNUSED(arg)){
+    if (!tox_is_friend_master(tox, fid)){
+        return false;
+    }
+
+    irc_leave_all_channels(irc);
 
     return true;
 }
