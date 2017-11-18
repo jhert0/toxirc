@@ -5,8 +5,11 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#define IRC_MAX_CHANNEL_LENGTH 50
+#define IRC_PORT_LENGTH 5
+
 struct channel {
-    char *name;
+    char name[IRC_MAX_CHANNEL_LENGTH];
     uint32_t group_num;
     bool in_channel;
 };
@@ -23,9 +26,6 @@ struct irc {
 
 typedef struct irc IRC;
 typedef struct channel Channel;
-
-#define IRC_MAX_CHANNEL_LENGTH 50
-#define IRC_PORT_LENGTH 5
 
 /*
  * Connects to the IRC server and creates the IRC struct

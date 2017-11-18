@@ -90,7 +90,7 @@ bool irc_join_channel(IRC *irc, char *channel, uint32_t group_num){
     irc_send_fmt(irc->sock, "JOIN %s\n", channel);
 
     int index = irc->num_channels - 1;
-    irc->channels[index].name = channel;
+    memcpy(irc->channels[index].name, channel, strlen(channel));
     irc->channels[index].in_channel = true;
     irc->channels[index].group_num = group_num;
 
