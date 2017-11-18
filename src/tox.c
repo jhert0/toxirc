@@ -37,7 +37,7 @@ static void friend_message_callback(Tox *tox, uint32_t fid, TOX_MESSAGE_TYPE typ
 
     bool valid = false;
     for (int i = 0; commands[i].cmd; i++) {
-        if (strncmp(msg, commands[i].cmd, strlen(msg)) == 0) {
+        if (strncmp(msg, commands[i].cmd, strlen(commands[i].cmd)) == 0) {
             commands[i].func(tox, irc, fid, arg);
             valid = true;
         }
