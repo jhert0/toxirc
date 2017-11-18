@@ -191,7 +191,6 @@ int irc_message(int sock, char *channel, char *name, char *msg){
 int irc_get_channel_index(IRC *irc, char *channel){
     for (unsigned int i = 0; i < irc->num_channels; i++) {
         if (strcmp(channel, irc->channels[i].name) == 0) {
-            printf("match: %s %s\n", channel, irc->channels[i].name);
             return i;
         }
     }

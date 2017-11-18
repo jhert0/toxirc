@@ -44,8 +44,6 @@ static void friend_message_callback(Tox *tox, uint32_t fid, TOX_MESSAGE_TYPE typ
     }
 
     if (arg) {
-        printf("arg: %s\n", arg);
-        printf("arg_length: %d\n", arg_length);
         free(arg);
     }
 
