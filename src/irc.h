@@ -13,7 +13,7 @@ struct channel {
 
 struct irc {
     char *server;
-    int port;
+    char *port;
     struct channel *channels;
     int num_channels;
     int size_channels;
@@ -24,12 +24,15 @@ struct irc {
 typedef struct irc IRC;
 typedef struct channel CHANNEL;
 
+#define IRC_MAX_CHANNEL_LENGTH 50
+#define IRC_PORT_LENGTH 5
+
 /*
  * Connects to the IRC server and creates the IRC struct
  * returns a IRC struct on success
  * returns NULL on failure
  */
-IRC *irc_connect(char *server, int port);
+IRC *irc_connect(char *server, char *port);
 
 /*
  * Joins the specified IRC channel

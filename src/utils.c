@@ -23,11 +23,18 @@ uint8_t *hex_string_to_bin(const char *hex_string){
     return ret;
 }
 
-off_t get_file_size(FILE *fp){
-    off_t size;
+off_t get_file_size(char *file){
+    off_t size = 0;
+
+    FILE *fp = fopen(file, "r");
+    if (fp == NULL) {
+        return size;
+    }
+
     fseek(fp, 0, SEEK_END);
     size = ftell(fp);
     fseek(fp, 0, SEEK_SET);
+
     return size;
 }
 

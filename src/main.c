@@ -34,8 +34,11 @@ int main(void){
         return 1;
     }
 
+    if (!settings_load(SETTINGS_FILE)) {
+        DEBUG("WARNING", "Settings could not be loaded, default settings will be used.");
+    }
 
-    IRC *irc = irc_connect("71.11.84.232", 6667);
+    IRC *irc = irc_connect(settings.server, settings.port);
     if (!irc) {
         return 2;
     }
@@ -96,10 +99,14 @@ int main(void){
                 if ((ptr = strtok(NULL, ":")) != NULL && (ptr = strtok(NULL, "")) != NULL) {
                     strncpy(msg, ptr, 511);
                     msg[511] = '\0';
-                    printf("message: %s\n", msg);
                 }
 
-                tox_group_send_msg(tox, 0, nick, msg); //TODO: use the channel name to get the group number
+                uint32_t group = irc_get_channel_group(irc, channel);
+                if (group == UINT32_MAX) {
+                    continue;
+                }
+
+                tox_group_send_msg(tox, group, nick, msg); //TODO: use the channel name to get the group number
             }
         }
 
@@ -110,7 +117,7 @@ int main(void){
             DEBUG("main", "Socket has gone bad. Reconnecting...");
             irc_disconnect(irc);
             irc_free(irc);
-            irc = irc_connect("71.11.84.232", 667);
+            irc = irc_connect(settings.server, settings.port);
         }
 
         tox_iterate(tox, irc);
@@ -122,6 +129,8 @@ int main(void){
 
     write_config(tox, SAVE_FILE);
     tox_kill(tox);
+
+    settings_save(SETTINGS_FILE);
 
     DEBUG("main", "Shutting down bot...");
 

@@ -8,37 +8,53 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <sys/types.h>
 #include <sys/socket.h>
+#include <netdb.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 
-IRC *irc_connect(char *server, int port){
+IRC *irc_connect(char *server, char *port){
     IRC *irc = malloc(sizeof(IRC));
     if (!irc) {
         DEBUG("IRC", "Could not allocate memory for irc structure.");
         return NULL;
     }
 
-    DEBUG("IRC", "Connecting to %s", server);
+    DEBUG("IRC", "Connecting to %s:%s", server, port);
 
     irc->server = server;
     irc->port = port;
 
-    irc->sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (irc->sock < 0) {
-        DEBUG("IRC", "Error creating socket");
+    struct addrinfo hints;
+    struct addrinfo *result, *rp;
+
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
+    hints.ai_protocol = 0;
+
+    int ret = getaddrinfo(server, port, &hints, &result);
+    if (ret != 0) {
+        DEBUG("IRC", "Error getting address information.");
         return NULL;
     }
 
-    struct sockaddr_in addr_in;
-    addr_in.sin_addr.s_addr = inet_addr(server);
-    addr_in.sin_family = AF_INET;
-    addr_in.sin_port = htons(port);
+    for (rp = result; rp != NULL; rp = rp->ai_next) {
+        irc->sock = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+        if (irc->sock == -1){
+            continue;
+        }
 
-    if (connect(irc->sock , (struct sockaddr *)&addr_in , sizeof(addr_in)) < 0) {
-        DEBUG("IRC", "Could not connect to %s", server);
-        return NULL;
+        if (connect(irc->sock, rp->ai_addr, rp->ai_addrlen) != -1) {
+            break;
+        }
+
+        close(irc->sock);
     }
+
+    freeaddrinfo(result);
 
     irc_send(irc->sock, "PASS none\n", sizeof("PASS none\n") - 1);
     irc_send_fmt(irc->sock, "NICK %s\n", settings.name);

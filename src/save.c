@@ -57,7 +57,7 @@ Tox *load_config(char *path, int *status){
         return NULL;
     }
 
-    off_t size = get_file_size(fp);
+    off_t size = get_file_size(path);
     if (size == 0) {
         DEBUG("Save", "Could not get the file size for %s. Assuming new profile.", path);
         fclose(fp);
