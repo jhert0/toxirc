@@ -105,4 +105,11 @@ uint32_t irc_get_channel_group(IRC *irc, char *channel);
  */
 char *irc_get_channel_by_group(IRC *irc, uint32_t group_num);
 
+/*
+ * Checks if the bot is in the specified irc channel
+ * on success returns true
+ * on failure returns false
+ */
+bool irc_in_channel(IRC *irc, char *channel);
+
 #endif

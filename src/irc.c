@@ -185,7 +185,7 @@ int irc_send_fmt(int sock, char *fmt, ...){
 }
 
 int irc_message(int sock, char *channel, char *name, char *msg){
-    return irc_send_fmt(sock, "PRIVMSG %s :<%s> %s\r\n", channel, name, msg);
+    return irc_send_fmt(sock, "PRIVMSG %s :<%s> %s\n", channel, name, msg);
 }
 
 int irc_get_channel_index(IRC *irc, char *channel){
@@ -216,4 +216,14 @@ char *irc_get_channel_by_group(IRC *irc, uint32_t group_num){
     }
 
     return NULL;
+}
+
+bool irc_in_channel(IRC *irc, char *channel){
+    for (unsigned i = 0; i < irc->num_channels; i++) {
+        if (strcmp(irc->channels[i].name, channel) == 0 && irc->channels[i].in_channel) {
+            return true;
+        }
+    }
+
+    return false;
 }

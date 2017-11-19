@@ -3,15 +3,14 @@
 #include "irc.h"
 #include "logging.h"
 #include "macros.h"
-#include "tox.h"
 #include "settings.h"
+#include "tox.h"
 #include "utils.h"
 
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include <tox/tox.h>
-
 
 size_t command_parse(char *msg, size_t msg_length){
     size_t cmd_length = 0;
@@ -56,18 +55,22 @@ static bool command_list(Tox *tox, IRC *irc, int fid, char *arg);
 static bool command_id(Tox *tox, IRC *irc, int fid, char *arg);
 static bool command_info(Tox *tox, IRC *irc, int fid, char *arg);
 static bool command_la(Tox *tox, IRC *irc, int fid, char *arg);
+static bool command_name(Tox *tox, IRC *irc, int fid, char *arg);
+static bool command_default(Tox *tox, IRC *irc, int fid, char *arg);
 static bool command_help(Tox *tox, IRC *irc, int fid, char *arg);
 
 struct Command commands[256] = {
-    { "invite", "Request an invite to the default channel or specify one.", false, command_invite },
-    { "join",   "Joins the specified channel.",                             false, command_join   },
-    { "leave",  "Leaves the specified channel.",                            true,  command_leave  },
-    { "list",   "List all channels I am in.",                               false, command_list   },
-    { "id",     "Prints my tox ID.",                                        false, command_id     },
-    { "info",   "Info about the bot",                                       false, command_info   },
-    { "la",     "leaves all channels",                                      true,  command_la     },
-    { "help",   "This message.",                                            false, command_help   },
-    { NULL,     NULL,                                                       false, NULL           },
+    { "invite",  "Request an invite to the default channel or specify one.", false, command_invite  },
+    { "join",    "Joins the specified channel.",                             false, command_join    },
+    { "leave",   "Leaves the specified channel.",                            true,  command_leave   },
+    { "list",    "List all channels I am in.",                               false, command_list    },
+    { "id",      "Prints my tox ID.",                                        false, command_id      },
+    { "info",    "Info about the bot",                                       false, command_info    },
+    { "la",      "leaves all channels",                                      true,  command_la      },
+    { "name",    "set the bots name",                                        true,  command_name    },
+    { "default", "sets the default channel",                                 true,  command_default },
+    { "help",    "This message.",                                            false, command_help    },
+    { NULL,      NULL,                                                       false, NULL            },
 };
 
 static bool command_invite(Tox *tox, IRC *irc, int fid, char *arg){
@@ -204,7 +207,48 @@ static bool command_la(Tox *tox, IRC *irc, int fid , char *UNUSED(arg)){
         return false;
     }
 
+    for (unsigned int i = 0; i < irc->num_channels; i++) {
+        tox_conference_delete(tox, irc->channels[i].group_num, NULL);
+    }
+
     irc_leave_all_channels(irc);
+
+    return true;
+}
+
+static bool command_name(Tox *tox, IRC *UNUSED(irc), int fid, char *arg){
+    if (!tox_is_friend_master(tox, fid)) {
+        return false;
+    }
+
+    if (!arg) {
+        tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)"An argument is required.", sizeof("An argument is required.") - 1, NULL);
+        return false;
+    }
+
+    strcpy(settings.name, arg);
+
+    tox_self_set_name(tox, (const uint8_t *)arg, strlen(arg), NULL);
+
+    return true;
+}
+
+static bool command_default(Tox *tox, IRC *irc, int fid, char *arg){
+    if (!tox_is_friend_master(tox, fid)) {
+        return false;
+    }
+
+    if (!arg) {
+        tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)"An argument is required.", sizeof("An argument is required.") - 1, NULL);
+        return false;
+    }
+
+    if (!irc_in_channel(irc, arg)) {
+        tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)"I am not in that channel.", sizeof("I am not in that channel.") - 1, NULL);
+        return false;
+    }
+
+    strcpy(settings.default_channel, arg);
 
     return true;
 }
