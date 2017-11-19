@@ -56,7 +56,6 @@ int main(void){
 
     irc_join_channel(irc, settings.default_channel, group_num);
 
-    char nick[128], msg[512], channel[128];
     while (!exit_bot) {
         int count = 0;
 
@@ -81,34 +80,10 @@ int main(void){
 
                 irc_send(irc->sock, (char *)data, i);
             } else if(data[0] == ':') {
-                char *ptr = strtok((char *)data, "!");
-                bool privmsg = false;
-
-                if (ptr == NULL) {
+                char nick[32], user[32], server[32], channel[50], msg[256];
+                int matches = sscanf((char *)data, ":%31[^!]!~%31[^@]@%31s PRIVMSG %49s :%255[^\n]", nick, user, server, channel, msg);
+                if (matches != 5) {
                     continue;
-                } else {
-                    strncpy(nick, &ptr[1], 127);
-                    nick[127] = '\0';
-                }
-
-                if (strcmp(nick, settings.name) == 0) {
-                    continue;
-                }
-
-                while ((ptr = strtok(NULL, " ")) != NULL) {
-                    if (strcmp(ptr, "PRIVMSG") == 0) {
-                        privmsg = true;
-                        break;
-                    }
-                }
-
-                if (!privmsg) {
-                    continue;
-                }
-
-                if ((ptr = strtok(NULL, ":")) != NULL && (ptr = strtok(NULL, "")) != NULL) {
-                    strncpy(msg, ptr, 511);
-                    msg[511] = '\0';
                 }
 
                 uint32_t group = irc_get_channel_group(irc, channel);
@@ -116,7 +91,7 @@ int main(void){
                     continue;
                 }
 
-                tox_group_send_msg(tox, group, nick, msg); //TODO: use the channel name to get the group number
+                tox_group_send_msg(tox, group, nick, msg);
             }
         }
 
