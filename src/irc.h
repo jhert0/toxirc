@@ -28,11 +28,25 @@ typedef struct irc IRC;
 typedef struct channel Channel;
 
 /*
- * Connects to the IRC server and creates the IRC struct
- * returns a IRC struct on success
+ * Initializes the IRC structure
+ * returns an IRC struct on succes
  * returns NULL on failure
  */
-IRC *irc_connect(char *server, char *port);
+IRC *irc_init(char *server, char *port);
+
+/*
+ * Connects to the IRC server
+ * returns true on success
+ * returns false on failure
+ */
+bool irc_connect(IRC *irc);
+
+/*
+ * Reconnects to the IRC server
+ * returns true on success
+ * returns false on failure
+ */
+bool irc_reconnect(IRC *irc);
 
 /*
  * Joins the specified IRC channel

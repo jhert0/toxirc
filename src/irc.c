@@ -12,17 +12,23 @@
 #include <netdb.h>
 #include <unistd.h>
 
-IRC *irc_connect(char *server, char *port){
+IRC *irc_init(char *server, char *port){
     IRC *irc = malloc(sizeof(IRC));
     if (!irc) {
         DEBUG("IRC", "Could not allocate memory for irc structure.");
         return NULL;
     }
 
-    DEBUG("IRC", "Connecting to %s:%s", server, port);
+    memset(irc, 0, sizeof(IRC));
 
     irc->server = server;
     irc->port = port;
+
+    return irc;
+}
+
+bool irc_connect(IRC *irc){
+    DEBUG("IRC", "Connecting to %s:%s", irc->server, irc->port);
 
     struct addrinfo hints;
     struct addrinfo *result, *rp;
@@ -33,10 +39,10 @@ IRC *irc_connect(char *server, char *port){
     hints.ai_flags = AI_PASSIVE;
     hints.ai_protocol = 0;
 
-    int ret = getaddrinfo(server, port, &hints, &result);
+    int ret = getaddrinfo(irc->server, irc->port, &hints, &result);
     if (ret != 0) {
-        DEBUG("IRC", "Error getting address information.");
-        return NULL;
+        DEBUG("IRC", "Error getting address information for %s.", irc->server);
+        return false;
     }
 
     for (rp = result; rp != NULL; rp = rp->ai_next) {
@@ -63,9 +69,19 @@ IRC *irc_connect(char *server, char *port){
     irc->num_channels = 0;
     irc->size_channels = 0;
 
-    DEBUG("IRC", "Connected to %s", server);
+    DEBUG("IRC", "Connected to %s", irc->server);
 
-    return irc;
+    return true;
+}
+
+bool irc_reconnect(IRC *irc){
+    if (irc->channels) { //only free the channels
+        free(irc->channels);
+    }
+
+    irc_disconnect(irc);
+
+    return irc_connect(irc);
 }
 
 bool irc_join_channel(IRC *irc, char *channel, uint32_t group_num){

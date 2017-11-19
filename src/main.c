@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <signal.h>
@@ -34,10 +35,16 @@ int main(void){
         return 1;
     }
 
-    IRC *irc = irc_connect(settings.server, settings.port);
+    IRC *irc = irc_init(settings.server, settings.port);
     if (!irc) {
         tox_kill(tox);
         return 2;
+    }
+
+    if (!irc_connect(irc)) {
+        irc_free(irc);
+        tox_kill(tox);
+        return 3;
     }
 
     TOX_ERR_CONFERENCE_NEW err;
@@ -47,7 +54,7 @@ int main(void){
         tox_kill(tox);
         irc_disconnect(irc);
         irc_free(irc);
-        return 3;
+        return 4;
     }
 
     irc_join_channel(irc, settings.default_channel, group_num);
@@ -76,7 +83,7 @@ int main(void){
 
                 irc_send(irc->sock, (char *)data, i);
             } else if(data[0] == ':') {
-                char nick[32], user[32], server[32], channel[50], msg[256];
+                char nick[32], user[32], server[32], channel[IRC_MAX_CHANNEL_LENGTH], msg[256];
                 int matches = sscanf((char *)data, ":%31[^!]!~%31[^@]@%31s PRIVMSG %49s :%255[^\r\n]", nick, user, server, channel, msg);
                 if (matches != 5) {
                     continue;
@@ -96,9 +103,7 @@ int main(void){
 
         if (irc->sock < 0 || getsockopt(irc->sock, SOL_SOCKET, SO_ERROR, &error, &len) != 0) {
             DEBUG("main", "Socket has gone bad. Reconnecting...");
-            irc_disconnect(irc);
-            irc_free(irc);
-            irc = irc_connect(settings.server, settings.port);
+            irc_reconnect(irc);
         }
 
         tox_iterate(tox, irc);
