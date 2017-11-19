@@ -136,8 +136,8 @@ bool settings_load(char *file){
 
     if (!ini_browse(settings_parser, &settings, file)) {
         DEBUG("Settings", "Unable to parse %s.", file);
-        return true;
+        return false;
     }
 
-    return false;
+    return true;
 }
