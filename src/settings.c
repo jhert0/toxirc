@@ -39,7 +39,7 @@ SETTINGS settings = {
     .server = "chat.freenode.net",
     .port = "6667",
     .default_channel = "#toxirc",
-    .debug_messages = true,
+    .verbose = true,
 };
 
 static void settings_write_string(char *file, const char *section, char *key, char *value){
@@ -60,7 +60,7 @@ void settings_save(char *file){
     settings_write_string(file, sections[SECTION_BOT], "status", settings.status);
     settings_write_string(file, sections[SECTION_BOT], "master", settings.master);
     settings_write_string(file, sections[SECTION_BOT], "default_channel", settings.default_channel);
-    settings_write_bool(file, sections[SECTION_BOT], "debug_messages", settings.debug_messages);
+    settings_write_bool(file, sections[SECTION_BOT], "verbose", settings.verbose);
 
     //Tox
     settings_write_bool(file, sections[SECTION_TOX], "ipv6", settings.ipv6);
@@ -90,8 +90,8 @@ static void parse_bot_section(const char *key, const char *value) {
         strcpy(settings.master, value);
     } else if (strcmp(key, "default_channel") == 0) {
         strcpy(settings.default_channel, value);
-    } else if (strcmp(key, "debug_messages") == 0) {
-        settings.debug_messages = STR_TO_BOOL(value);
+    } else if (strcmp(key, "verbose") == 0) {
+        settings.verbose = STR_TO_BOOL(value);
     }
 }
 

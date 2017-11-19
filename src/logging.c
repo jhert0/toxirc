@@ -6,7 +6,7 @@
 #include <stdarg.h>
 
 void debug(const char *fmt, ...){
-    if (!settings.debug_messages) {
+    if (!settings.verbose) {
         return;
     }
 
