@@ -7,8 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
 #include <fcntl.h>
+
 #include <tox/tox.h>
 
 bool write_config(Tox *tox, char *path){

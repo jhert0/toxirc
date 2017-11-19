@@ -8,7 +8,6 @@
 
 #include <stdbool.h>
 #include <string.h>
-#include <stdlib.h>
 
 #define STR_TO_BOOL(x) (strcmp(x, "true") == 0)
 #define BOOL_TO_STR(x) x ? "true" : "false"

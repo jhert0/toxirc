@@ -4,14 +4,12 @@
 #include "settings.h"
 
 #include <stdio.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
-#include <arpa/inet.h>
 #include <unistd.h>
 
 IRC *irc_connect(char *server, char *port){
