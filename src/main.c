@@ -81,7 +81,7 @@ int main(void){
                 irc_send(irc->sock, (char *)data, i);
             } else if(data[0] == ':') {
                 char nick[32], user[32], server[32], channel[50], msg[256];
-                int matches = sscanf((char *)data, ":%31[^!]!~%31[^@]@%31s PRIVMSG %49s :%255[^\n]", nick, user, server, channel, msg);
+                int matches = sscanf((char *)data, ":%31[^!]!~%31[^@]@%31s PRIVMSG %49s :%255[^\r\n]", nick, user, server, channel, msg);
                 if (matches != 5) {
                     continue;
                 }
