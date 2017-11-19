@@ -169,7 +169,7 @@ bool tox_connect(Tox *tox){
 }
 
 void tox_group_send_msg(Tox *tox, uint32_t group_num, char *nick, char *msg){
-    size_t size = strlen(nick) + strlen(msg) + 3;
+    size_t size = strlen(nick) + strlen(msg) + 2;
     char *message = malloc(size);
     if (!message) {
         DEBUG("Tox", "Could not allocate memory for group message.");
