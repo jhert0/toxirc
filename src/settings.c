@@ -10,6 +10,9 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define STR_TO_BOOL(x) (strcmp(x, "true") == 0)
+#define BOOL_TO_STR(x) x ? "true" : "false"
+
 enum SECTION {
     SECTION_BOT,
     SECTION_TOX,
@@ -36,6 +39,7 @@ SETTINGS settings = {
     .server = "chat.freenode.net",
     .port = "6667",
     .default_channel = "#toxirc",
+    .debug_messages = true,
 };
 
 static void settings_write_string(char *file, const char *section, char *key, char *value){
@@ -45,9 +49,8 @@ static void settings_write_string(char *file, const char *section, char *key, ch
 }
 
 static void settings_write_bool(char *file, const char *section, char *key, bool value){
-    char *val = value ? "true" : "false";
-    if (ini_puts(section, key, val, file) != 1) {
-        DEBUG("Settings", "Could not write %s to %s", val, file);
+    if (ini_puts(section, key, BOOL_TO_STR(value), file) != 1) {
+        DEBUG("Settings", "Could not write %s to %s", BOOL_TO_STR(value), file);
     }
 }
 
@@ -57,6 +60,7 @@ void settings_save(char *file){
     settings_write_string(file, sections[SECTION_BOT], "status", settings.status);
     settings_write_string(file, sections[SECTION_BOT], "master", settings.master);
     settings_write_string(file, sections[SECTION_BOT], "default_channel", settings.default_channel);
+    settings_write_bool(file, sections[SECTION_BOT], "debug_messages", settings.debug_messages);
 
     //Tox
     settings_write_bool(file, sections[SECTION_TOX], "ipv6", settings.ipv6);
@@ -86,15 +90,16 @@ static void parse_bot_section(const char *key, const char *value) {
         strcpy(settings.master, value);
     } else if (strcmp(key, "default_channel") == 0) {
         strcpy(settings.default_channel, value);
+    } else if (strcmp(key, "debug_messages") == 0) {
+        settings.debug_messages = STR_TO_BOOL(value);
     }
 }
 
 static void parse_tox_section(const char *key, const char *value) {
-    bool val = (strcmp(value, "true") == 0);
     if (strcmp(key, "ipv6") == 0) {
-        settings.ipv6 = val;
+        settings.ipv6 = STR_TO_BOOL(value);
     } else if (strcmp(key, "udp") == 0){
-        settings.udp = val;
+        settings.udp = STR_TO_BOOL(value);
     }
 }
 

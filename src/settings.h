@@ -19,6 +19,7 @@ struct Settings {
     char server[NI_MAXHOST];
     char port[IRC_PORT_LENGTH];
     char default_channel[IRC_MAX_CHANNEL_LENGTH];
+    bool debug_messages;
 };
 
 typedef struct Settings SETTINGS;

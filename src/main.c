@@ -23,19 +23,19 @@ static void signal_catch(int UNUSED(sig)){
 }
 
 int main(void){
-    DEBUG("main", "Starting bot...");
-
     struct sigaction act;
     act.sa_handler = signal_catch;
     sigaction(SIGINT, &act, NULL);
 
+    if (!settings_load(SETTINGS_FILE)) {
+        DEBUG("WARNING", "Settings could not be loaded, default settings will be used.");
+    }
+
+    DEBUG("main", "Starting bot");
+
     Tox *tox = tox_init();
     if (!tox) {
         return 1;
-    }
-
-    if (!settings_load(SETTINGS_FILE)) {
-        DEBUG("WARNING", "Settings could not be loaded, default settings will be used.");
     }
 
     IRC *irc = irc_connect(settings.server, settings.port);
