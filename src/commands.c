@@ -130,8 +130,9 @@ static bool command_leave(Tox *tox, IRC *irc, int fid, char *arg){
         return false;
     }
 
-    irc_leave_channel(irc, index);
     tox_conference_delete(tox, irc->channels[index].group_num, NULL);
+
+    irc_leave_channel(irc, index);
 
     return true;
 }
