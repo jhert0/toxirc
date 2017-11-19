@@ -4,7 +4,12 @@
 #define SETTINGS_FILE "toxirc.ini"
 
 #include <stdbool.h>
+#include <sys/socket.h>
 #include <netdb.h>
+
+#ifndef NI_MAXHOST
+#define NI_MAXHOST 1025
+#endif
 
 #include <tox/tox.h>
 

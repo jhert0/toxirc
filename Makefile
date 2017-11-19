@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra
+CFLAGS = -Wall -Wextra -std=gnu99 #TODO: switch to c99
 LDFLAGS = -ltoxcore
 
 SRC = $(wildcard src/*.c) third-party/minini/dev/minIni.c
