@@ -4,6 +4,7 @@ Tox to IRC bridge with support for multiple channels
 ## Dependencies
 
 * Toxcore
+* pkg-config (for building)
 
 ## Build
 

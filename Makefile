@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=gnu99 #TODO: switch to c99
-LDFLAGS = -ltoxcore
+CFLAGS = -Wall -Wextra -std=gnu99 $(shell pkg-config --cflags toxcore) #TODO: switch to c99
+LDFLAGS = $(shell pkg-config --libs toxcore)
 
 SRC = $(wildcard src/*.c) third-party/minini/dev/minIni.c
 OBJ = $(SRC:.c=.o)
