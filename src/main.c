@@ -21,9 +21,7 @@ static void signal_catch(int UNUSED(sig)){
 }
 
 int main(void){
-    struct sigaction act;
-    act.sa_handler = signal_catch;
-    sigaction(SIGINT, &act, NULL);
+    signal(SIGINT, signal_catch);
 
     if (!settings_load(SETTINGS_FILE)) {
         DEBUG("WARNING", "Settings could not be loaded, default settings will be used.");
