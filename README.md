@@ -19,4 +19,4 @@ make
 
 ## License
 
-[MIT](README.md)
+[MIT](LICENSE)
