@@ -57,6 +57,7 @@ static bool command_info(Tox *tox, IRC *irc, int fid, char *arg);
 static bool command_la(Tox *tox, IRC *irc, int fid, char *arg);
 static bool command_name(Tox *tox, IRC *irc, int fid, char *arg);
 static bool command_default(Tox *tox, IRC *irc, int fid, char *arg);
+static bool command_master(Tox *tox, IRC *irc, int fid, char *arg);
 static bool command_help(Tox *tox, IRC *irc, int fid, char *arg);
 
 struct Command commands[256] = {
@@ -69,6 +70,7 @@ struct Command commands[256] = {
     { "la",      "leaves all channels",                                      true,  command_la      },
     { "name",    "set the bots name",                                        true,  command_name    },
     { "default", "sets the default channel",                                 true,  command_default },
+    { "master",  "sets the master of the bot",                               true,  command_master  },
     { "help",    "This message.",                                            false, command_help    },
     { NULL,      NULL,                                                       false, NULL            },
 };
@@ -230,6 +232,8 @@ static bool command_name(Tox *tox, IRC *UNUSED(irc), int fid, char *arg){
 
     tox_self_set_name(tox, (const uint8_t *)arg, strlen(arg), NULL);
 
+    settings_save(SETTINGS_FILE);
+
     return true;
 }
 
@@ -249,6 +253,25 @@ static bool command_default(Tox *tox, IRC *irc, int fid, char *arg){
     }
 
     strcpy(settings.default_channel, arg);
+
+    settings_save(SETTINGS_FILE);
+
+    return true;
+}
+
+static bool command_master(Tox *tox, IRC *UNUSED(irc), int fid, char *arg){
+    if (!tox_is_friend_master(tox, fid)) {
+        return false;
+    }
+
+    if (!arg) {
+        tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)"An argument is required.", sizeof("An argument is required.") - 1, NULL);
+        return false;
+    }
+
+    strcpy(settings.master, arg);
+
+    settings_save(SETTINGS_FILE);
 
     return true;
 }
