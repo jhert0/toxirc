@@ -49,7 +49,7 @@ int main(void){
 
     TOX_ERR_CONFERENCE_NEW err;
     uint32_t group_num = tox_conference_new(tox, &err);
-    if (group_num == UINT32_MAX){
+    if (group_num == UINT32_MAX) {
         DEBUG("main", "Could not create groupchat for default group.");
         tox_kill(tox);
         irc_disconnect(irc);

@@ -47,7 +47,7 @@ bool irc_connect(IRC *irc){
 
     for (rp = result; rp != NULL; rp = rp->ai_next) {
         irc->sock = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
-        if (irc->sock == -1){
+        if (irc->sock == -1) {
             continue;
         }
 
@@ -74,7 +74,7 @@ bool irc_connect(IRC *irc){
 bool irc_reconnect(IRC *irc){
     irc_disconnect(irc);
 
-    if (!irc_connect(irc)){
+    if (!irc_connect(irc)) {
         return false;
     }
 
@@ -222,7 +222,7 @@ int irc_get_channel_index(IRC *irc, char *channel){
 }
 
 uint32_t irc_get_channel_group(IRC *irc, char *channel){
-    for (unsigned int i = 0; i < irc->num_channels; i++){
+    for (unsigned int i = 0; i < irc->num_channels; i++) {
         if (strcmp(channel, irc->channels[i].name) == 0) {
             return i;
         }
