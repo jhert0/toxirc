@@ -65,9 +65,6 @@ bool irc_connect(IRC *irc){
     irc_send_fmt(irc->sock, "USER %s %s %s :%s\n", settings.name, settings.name, settings.name, settings.name);
 
     irc->connected = true;
-    irc->channels = NULL;
-    irc->num_channels = 0;
-    irc->size_channels = 0;
 
     DEBUG("IRC", "Connected to %s", irc->server);
 
@@ -75,13 +72,17 @@ bool irc_connect(IRC *irc){
 }
 
 bool irc_reconnect(IRC *irc){
-    if (irc->channels) { //only free the channels
-        free(irc->channels);
-    }
-
     irc_disconnect(irc);
 
-    return irc_connect(irc);
+    if (!irc_connect(irc)){
+        return false;
+    }
+
+    for (unsigned int i = 0; i < irc->num_channels; i++) {
+        irc_rejoin_channel(irc, i);
+    }
+
+    return true;
 }
 
 bool irc_join_channel(IRC *irc, char *channel, uint32_t group_num){
@@ -113,6 +114,11 @@ bool irc_join_channel(IRC *irc, char *channel, uint32_t group_num){
     return true;
 }
 
+void irc_rejoin_channel(IRC *irc, int index){
+    irc->channels[index].in_channel = true;
+    irc_send_fmt(irc->sock, "JOIN %s\n", irc->channels[index].name);
+}
+
 bool irc_leave_channel(IRC *irc, int index){
     irc_send_fmt(irc->sock, "PART %s\n", irc->channels[index].name);
 
@@ -127,6 +133,9 @@ void irc_disconnect(IRC *irc){
     irc_send(irc->sock, "QUIT\n", sizeof("QUIT\n") - 1);
     irc->connected = false;
     close(irc->sock);
+    for (unsigned int i = 0; i < irc->num_channels; i++) {
+        irc->channels[i].in_channel = false;
+    }
     DEBUG("IRC", "Disconnected from server: %s.", irc->server);
 }
 

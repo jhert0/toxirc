@@ -56,6 +56,11 @@ bool irc_reconnect(IRC *irc);
 bool irc_join_channel(IRC *irc, char *channel, uint32_t group_num);
 
 /*
+ * Rejoins the channel at the specified index
+ */
+void irc_rejoin_channel(IRC *irc, int index);
+
+/*
  * Leaves the specified IRC channel
  * returns true on success
  * returns false on failure
