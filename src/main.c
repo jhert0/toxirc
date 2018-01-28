@@ -103,7 +103,10 @@ int main(void){
 
         if (irc->sock < 0 || getsockopt(irc->sock, SOL_SOCKET, SO_ERROR, &error, &len) != 0) {
             DEBUG("main", "Socket has gone bad. Reconnecting...");
-            irc_reconnect(irc);
+            if (irc_reconnect(irc)) {
+                DEBUG("main", "Unable to reconnect. Dying...");
+                break;
+            }
         }
 
         tox_iterate(tox, irc);
@@ -113,7 +116,7 @@ int main(void){
     irc_disconnect(irc);
     irc_free(irc);
 
-    write_config(tox, SAVE_FILE);
+    save_write(tox, SAVE_FILE);
     tox_kill(tox);
 
     settings_save(SETTINGS_FILE);

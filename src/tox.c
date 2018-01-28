@@ -95,7 +95,7 @@ static void friend_request_callback(Tox *tox, const uint8_t *public_key, const u
         return;
     }
 
-    write_config(tox, SAVE_FILE);
+    save_write(tox, SAVE_FILE);
 }
 
 static void self_connection_change_callback(Tox *UNUSED(tox), TOX_CONNECTION status, void *UNUSED(userdata)) {
@@ -114,7 +114,7 @@ static void self_connection_change_callback(Tox *UNUSED(tox), TOX_CONNECTION sta
 
 Tox *tox_init(){
     int status;
-    Tox *tox = load_config(SAVE_FILE, &status);
+    Tox *tox = save_load(SAVE_FILE, &status);
 
     DEBUG("Tox", "Initialzing tox");
 
@@ -143,7 +143,7 @@ Tox *tox_init(){
     DEBUG("Tox", "ID: %.*s", TOX_ADDRESS_SIZE * 2, public_key_str);
 
     if (status == 2) {
-        write_config(tox, SAVE_FILE);
+        save_write(tox, SAVE_FILE);
     }
 
     DEBUG("Tox", "Finished initialzing tox");

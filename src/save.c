@@ -11,7 +11,7 @@
 
 #include <tox/tox.h>
 
-bool write_config(Tox *tox, char *path){
+bool save_write(Tox *tox, char *path){
     FILE *fp = fopen(path, "wb");
     if (!fp) {
         DEBUG("Save", "Can not open: %s", path);
@@ -40,7 +40,7 @@ bool write_config(Tox *tox, char *path){
     return true;
 }
 
-Tox *load_config(char *path, int *status){
+Tox *save_load(char *path, int *status){
     Tox *tox = NULL;
     struct Tox_Options options;
 

@@ -152,12 +152,12 @@ void irc_free(IRC *irc){
         return;
     }
 
-    if (irc->channels) {
-        free(irc->channels);
-    }
-
     if (irc->connected) {
         irc_disconnect(irc);
+    }
+
+    if (irc->channels) {
+        free(irc->channels);
     }
 
     free(irc);

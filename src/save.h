@@ -11,13 +11,13 @@
  * returns true on success
  * returns false on failure
  */
-bool write_config(Tox *tox, char *path);
+bool save_write(Tox *tox, char *path);
 
 /*
  * Loads the tox save data from the specified path
  * returns a Tox struct on success
  * returns NULL on failure
  */
-Tox *load_config(char *path, int *status);
+Tox *save_load(char *path, int *status);
 
 #endif
