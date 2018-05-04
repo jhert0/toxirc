@@ -99,6 +99,11 @@ static bool command_join(Tox *tox, IRC *irc, int fid, char *arg){
         return false;
     }
 
+    if (strlen(arg) > IRC_MAX_CHANNEL_LENGTH) {
+        tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)"IRC channel name is too long", sizeof("IRC channel name is too long") - 1, NULL);
+        return false;
+    }
+
     int index = irc_get_channel_index(irc, arg);
     if (index != -1) {
         tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)"I am already in that channel.", sizeof("I am already in that channel.") - 1, NULL);

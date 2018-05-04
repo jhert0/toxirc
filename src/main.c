@@ -50,7 +50,7 @@ int main(void){
     TOX_ERR_CONFERENCE_NEW err;
     uint32_t group_num = tox_conference_new(tox, &err);
     if (group_num == UINT32_MAX) {
-        DEBUG("main", "Could not create groupchat for default group.");
+        DEBUG("main", "Could not create groupchat for default group. Error number: %u", err);
         tox_kill(tox);
         irc_disconnect(irc);
         irc_free(irc);
@@ -82,7 +82,7 @@ int main(void){
                 }
 
                 irc_send(irc->sock, (char *)data, i);
-            } else if(data[0] == ':') {
+            } else if (data[0] == ':') {
                 char nick[32], user[32], server[32], channel[IRC_MAX_CHANNEL_LENGTH], msg[256];
                 int matches = sscanf((char *)data, ":%31[^!]!~%31[^@]@%31s PRIVMSG %49s :%255[^\r\n]", nick, user, server, channel, msg);
                 if (matches != 5) {
@@ -100,9 +100,8 @@ int main(void){
 
         int error = 0;
         socklen_t len = sizeof(error);
-
         if (irc->sock < 0 || getsockopt(irc->sock, SOL_SOCKET, SO_ERROR, &error, &len) != 0) {
-            DEBUG("main", "Socket has gone bad. Reconnecting...");
+            DEBUG("main", "Socket has gone bad. Error: %d. Reconnecting...", error);
             if (irc_reconnect(irc)) {
                 DEBUG("main", "Unable to reconnect. Dying...");
                 break;

@@ -104,10 +104,16 @@ bool irc_join_channel(IRC *irc, char *channel, uint32_t group_num){
 
     irc_send_fmt(irc->sock, "JOIN %s\n", channel);
 
+    size_t length = strlen(channel);
+    if (length > IRC_MAX_CHANNEL_LENGTH) {
+        length = IRC_MAX_CHANNEL_LENGTH;
+    }
+
     int index = irc->num_channels - 1;
-    memcpy(irc->channels[index].name, channel, strlen(channel));
+    memcpy(irc->channels[index].name, channel, length);
     irc->channels[index].in_channel = true;
     irc->channels[index].group_num = group_num;
+    irc->channels[index].name_length = length;
 
     DEBUG("IRC", "Joining channel: %s", channel);
 

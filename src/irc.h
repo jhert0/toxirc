@@ -10,6 +10,7 @@
 
 struct channel {
     char name[IRC_MAX_CHANNEL_LENGTH];
+    size_t name_length;
     uint32_t group_num;
     bool in_channel;
 };
