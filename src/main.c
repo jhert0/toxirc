@@ -10,6 +10,7 @@
 #include "irc.h"
 #include "logging.h"
 #include "macros.h"
+#include "network.h"
 #include "save.h"
 #include "settings.h"
 #include "tox.h"
@@ -81,7 +82,7 @@ int main(void){
                     }
                 }
 
-                irc_send(irc->sock, (char *)data, i);
+                network_send(irc->sock, (char *)data, i);
             } else if (data[0] == ':') {
                 char nick[32], user[32], server[32], channel[IRC_MAX_CHANNEL_LENGTH], msg[256];
                 int matches = sscanf((char *)data, ":%31[^!]!~%31[^@]@%31s PRIVMSG %49s :%255[^\r\n]", nick, user, server, channel, msg);

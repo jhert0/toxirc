@@ -1,6 +1,7 @@
 #include "irc.h"
 
 #include "logging.h"
+#include "network.h"
 #include "settings.h"
 
 #include <stdio.h>
@@ -60,9 +61,9 @@ bool irc_connect(IRC *irc){
 
     freeaddrinfo(result);
 
-    irc_send(irc->sock, "PASS none\n", sizeof("PASS none\n") - 1);
-    irc_send_fmt(irc->sock, "NICK %s\n", settings.name);
-    irc_send_fmt(irc->sock, "USER %s %s %s :%s\n", settings.name, settings.name, settings.name, settings.name);
+    network_send(irc->sock, "PASS none\n", sizeof("PASS none\n") - 1);
+    network_send_fmt(irc->sock, "NICK %s\n", settings.name);
+    network_send_fmt(irc->sock, "USER %s %s %s :%s\n", settings.name, settings.name, settings.name, settings.name);
 
     irc->connected = true;
 
@@ -104,7 +105,7 @@ bool irc_join_channel(IRC *irc, char *channel, uint32_t group_num){
         memset(&irc->channels[irc->num_channels - 1], 0, sizeof(Channel));
     }
 
-    irc_send_fmt(irc->sock, "JOIN %s\n", channel);
+    network_send_fmt(irc->sock, "JOIN %s\n", channel);
 
     size_t length = strlen(channel);
     if (length > IRC_MAX_CHANNEL_LENGTH) {
@@ -124,11 +125,11 @@ bool irc_join_channel(IRC *irc, char *channel, uint32_t group_num){
 
 void irc_rejoin_channel(IRC *irc, int index){
     irc->channels[index].in_channel = true;
-    irc_send_fmt(irc->sock, "JOIN %s\n", irc->channels[index].name);
+    network_send_fmt(irc->sock, "JOIN %s\n", irc->channels[index].name);
 }
 
 bool irc_leave_channel(IRC *irc, int index){
-    irc_send_fmt(irc->sock, "PART %s\n", irc->channels[index].name);
+    network_send_fmt(irc->sock, "PART %s\n", irc->channels[index].name);
 
     memset(&irc->channels[index], 0, sizeof(Channel));
 
@@ -138,7 +139,7 @@ bool irc_leave_channel(IRC *irc, int index){
 }
 
 void irc_disconnect(IRC *irc){
-    irc_send(irc->sock, "QUIT\n", sizeof("QUIT\n") - 1);
+    network_send(irc->sock, "QUIT\n", sizeof("QUIT\n") - 1);
     irc->connected = false;
     close(irc->sock);
     for (unsigned int i = 0; i < irc->num_channels; i++) {
@@ -173,50 +174,8 @@ void irc_free(IRC *irc){
     irc = NULL;
 }
 
-int irc_send(int sock, char *msg, int len){
-    if (sock < 0) {
-        DEBUG("IRC", "Bad socket. Unable to send data.");
-        return -1;
-    }
-
-    int sent = 0, bytes = 0;
-
-    while (sent < len) {
-        bytes = send(sock, msg + sent, len - sent, MSG_NOSIGNAL);
-        if (bytes <= 0) {
-            DEBUG("IRC", "Problem sending data.");
-            return -1;
-        }
-
-        sent += bytes;
-    }
-
-    return sent;
-}
-
-int irc_send_fmt(int sock, char *fmt, ...){
-    char buf[512];
-    va_list list;
-    int len, sent;
-
-    va_start(list, fmt);
-    len = vsnprintf(buf, sizeof(buf), fmt, list);
-    va_end(list);
-
-    if (len > 512) {
-        len = 512;
-    }
-
-    sent = irc_send(sock, buf, len);
-    if (sent <= 0) {
-        return -1;
-    }
-
-    return sent;
-}
-
 int irc_message(int sock, char *channel, char *name, char *msg){
-    return irc_send_fmt(sock, "PRIVMSG %s :<%s> %s\n", channel, name, msg);
+    return network_send_fmt(sock, "PRIVMSG %s :<%s> %s\n", channel, name, msg);
 }
 
 int irc_get_channel_index(IRC *irc, char *channel){

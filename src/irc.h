@@ -79,21 +79,6 @@ void irc_disconnect(IRC *irc);
 void irc_leave_all_channels(IRC *irc);
 
 /*
- * Send msg with length len to the IRC server
- * on success returns the number of bytes sent
- * on failure returns -1
- */
-int irc_send(int sock, char *msg, int len);
-
-
-/*
- * Send a formated message to the IRC server
- * on success returns the number of bytes sent
- * on failure returns -1
- */
-int irc_send_fmt(int sock, char *fmt, ...);
-
-/*
  * Sends the specified name and message to the specified channel
  */
 int irc_message(int sock, char *channel, char *name, char *msg);
