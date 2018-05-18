@@ -72,7 +72,9 @@ bool irc_connect(IRC *irc){
 }
 
 bool irc_reconnect(IRC *irc){
-    irc_disconnect(irc);
+    if (irc->connected) {
+        irc_disconnect(irc);
+    }
 
     if (!irc_connect(irc)) {
         return false;
