@@ -174,8 +174,8 @@ void irc_free(IRC *irc){
     irc = NULL;
 }
 
-int irc_message(int sock, char *channel, char *name, char *msg){
-    return network_send_fmt(sock, "PRIVMSG %s :<%s> %s\n", channel, name, msg);
+int irc_message(IRC *irc, char *channel, char *name, char *msg){
+    return network_send_fmt(irc->sock, "PRIVMSG %s :<%s> %s\n", channel, name, msg);
 }
 
 int irc_get_channel_index(IRC *irc, char *channel){

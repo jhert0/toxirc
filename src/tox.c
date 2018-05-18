@@ -82,7 +82,7 @@ static void group_message_callback(Tox *tox, uint32_t groupnumber,
         return;
     }
 
-    irc_message(irc->sock, channel, (char *)name, (char *)message);
+    irc_message(irc, channel, (char *)name, (char *)message);
 }
 
 static void friend_request_callback(Tox *tox, const uint8_t *public_key, const uint8_t *UNUSED(data),
