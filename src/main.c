@@ -90,8 +90,8 @@ int main(void){
                     break;
                 }
             } else if (data[0] == ':') {
-                char nick[32], user[32], server[32], channel[IRC_MAX_CHANNEL_LENGTH], msg[256];
-                int matches = sscanf((char *)data, ":%31[^!]!%31[^@]@%31s PRIVMSG %49s :%255[^\r\n]", nick, user, server, channel, msg);
+                char nick[32], user[32], server[100], channel[IRC_MAX_CHANNEL_LENGTH], msg[256];
+                int matches = sscanf((char *)data, ":%31[^!]!%31[^@]@%99s PRIVMSG %49s :%255[^\r\n]", nick, user, server, channel, msg);
                 if (matches != 5) {
                     continue;
                 }
