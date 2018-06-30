@@ -1,0 +1,50 @@
+#include "irc_commands.h"
+
+#include "commands.h"
+
+#include "../macros.h"
+
+#include <stdio.h>
+#include <string.h>
+
+static bool command_users(Tox *tox, IRC *irc, uint32_t index, char *arg);
+
+//TODO: when new groupchats are merged add in a command for getting the groupchats id
+struct Command irc_commands[MAX_CMDS] = {
+    { "!users", "Retrieve the users in the tox groupchat", false, command_users },
+    { NULL,     NULL,                                      false, NULL          },
+};
+
+static bool command_users(Tox *tox, IRC *irc, uint32_t index, char *UNUSED(arg)){
+    uint32_t group_number = irc->channels[index].group_num;
+
+    uint32_t peer_count = tox_conference_peer_count(tox, group_number, NULL);
+    uint8_t names[peer_count][TOX_MAX_MESSAGE_LENGTH];
+
+    size_t names_size = 0;
+    size_t name_lens[peer_count];
+    for (uint32_t i = 0; i < peer_count; i++) {
+        TOX_ERR_CONFERENCE_PEER_QUERY err;
+        name_lens[i] = tox_conference_peer_get_name_size(tox, group_number, i, &err);
+        if (name_lens[i] == 0 || err != TOX_ERR_CONFERENCE_PEER_QUERY_OK) {
+            memcpy(names[i], "unknown", 7);
+            name_lens[i] = 7;
+        } else {
+            tox_conference_peer_get_name(tox, group_number, i, names[i], NULL);
+        }
+        names[i][name_lens[i]] = '\0';
+        names_size += name_lens[i];
+    }
+
+    char buffer[33 + names_size + peer_count]; //33 for string, names_size for the names, peer_count for spaces in between names
+    snprintf(buffer, sizeof(buffer), "There are %u in the groupchat: ", peer_count);
+
+    for (uint32_t i = 0; i < peer_count; i++) {
+        strncat(buffer, (const char *)names[i], name_lens[i]);
+        strcat(buffer, " ");
+    }
+
+    irc_message(irc, irc->channels[index].name, buffer);
+
+    return true;
+}
