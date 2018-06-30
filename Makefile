@@ -2,9 +2,9 @@ CC = gcc
 CFLAGS = -Wall -Wextra -std=gnu99 $(shell pkg-config --cflags toxcore) #TODO: switch to c99
 LDFLAGS = $(shell pkg-config --libs toxcore)
 
-SRC = $(wildcard src/*.c) third-party/minini/dev/minIni.c
+SRC = $(wildcard src/*.c ) $(wildcard src/*/*.c) third-party/minini/dev/minIni.c
 OBJ = $(SRC:.c=.o)
-HEADERS = $(wildcard src/*.h)
+HEADERS = $(wildcard src/*.h) $(wildcard src/*/*.h)
 
 DEBUG = 1
 PREFIX = /usr/local
@@ -23,7 +23,7 @@ $(EXECUTABLE): $(OBJ) $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm src/*.o $(EXECUTABLE)
+	rm src/*.o src/*/*.o $(EXECUTABLE)
 
 rebuild: clean all
 

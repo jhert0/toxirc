@@ -15,6 +15,8 @@
 #include "settings.h"
 #include "tox.h"
 
+#include "callbacks/irc_callbacks.h"
+
 bool exit_bot = false;
 
 static void signal_catch(int UNUSED(sig)){
@@ -48,6 +50,8 @@ int main(void){
         return 3;
     }
 
+    irc_callbacks_setup(irc);
+
     TOX_ERR_CONFERENCE_NEW err;
     uint32_t group_num = tox_conference_new(tox, &err);
     if (group_num == UINT32_MAX) {
@@ -62,60 +66,7 @@ int main(void){
     irc_join_channel(irc, settings.default_channel, group_num);
 
     while (!exit_bot) {
-        int count = 0;
-
-        ioctl(irc->sock, FIONREAD, &count);
-
-        if (count > 0) {
-            uint8_t data[count + 1];
-            data[count] = 0;
-            recv(irc->sock, data, count, MSG_NOSIGNAL);
-            printf("%s", data);
-
-            if (strncmp((char *)data, "PING", 4) == 0) {
-                data[1] = 'O';
-
-                int i;
-                for (i = 0; i < count; ++i) {
-                    if (data[i] == '\n') {
-                        ++i;
-                        break;
-                    }
-                }
-
-                network_send(irc->sock, (char *)data, i);
-            } else if (strncmp((char *)data, "ERROR", 4) == 0) {
-                DEBUG("main", "Disconnected from the irc server reconnecting...");
-                if (!irc_reconnect(irc)) {
-                    DEBUG("main", "Unable to reconnect. Dying...");
-                    break;
-                }
-            } else if (data[0] == ':') {
-                char nick[32], user[32], server[100], channel[IRC_MAX_CHANNEL_LENGTH], msg[256];
-                int matches = sscanf((char *)data, ":%31[^!]!%31[^@]@%99s PRIVMSG %49s :%255[^\r\n]", nick, user, server, channel, msg);
-                if (matches != 5) {
-                    continue;
-                }
-
-                uint32_t group = irc_get_channel_group(irc, channel);
-                if (group == UINT32_MAX) {
-                    continue;
-                }
-
-                tox_group_send_msg(tox, group, nick, msg);
-            }
-        }
-
-        int error = 0;
-        socklen_t len = sizeof(error);
-        if (irc->sock < 0 || getsockopt(irc->sock, SOL_SOCKET, SO_ERROR, &error, &len) != 0) {
-            DEBUG("main", "Socket has gone bad. Error: %d. Reconnecting...", error);
-            if (irc_reconnect(irc)) {
-                DEBUG("main", "Unable to reconnect. Dying...");
-                break;
-            }
-        }
-
+        irc_loop(irc, tox);
         tox_iterate(tox, irc);
         usleep(tox_iteration_interval(tox));
     }

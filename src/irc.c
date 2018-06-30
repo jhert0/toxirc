@@ -3,6 +3,10 @@
 #include "logging.h"
 #include "network.h"
 #include "settings.h"
+#include "tox.h"
+
+#include "commands/commands.h"
+#include "commands/irc_commands.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,6 +14,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/ioctl.h>
 #include <netdb.h>
 #include <unistd.h>
 
@@ -112,7 +117,7 @@ bool irc_join_channel(IRC *irc, char *channel, uint32_t group_num){
         length = IRC_MAX_CHANNEL_LENGTH;
     }
 
-    int index = irc->num_channels - 1;
+    uint32_t index = irc->num_channels - 1;
     memcpy(irc->channels[index].name, channel, length);
     irc->channels[index].in_channel = true;
     irc->channels[index].group_num = group_num;
@@ -216,4 +221,73 @@ bool irc_in_channel(IRC *irc, char *channel){
     }
 
     return false;
+}
+
+int irc_command_list(int sock, char *channel, char *users){
+    return network_send_fmt(sock, "LIST %s\n", channel);
+}
+
+int irc_command_topic(int sock, char *channel){
+    return network_send_fmt(sock, "TOPIC %s\n", channel);
+}
+
+void irc_loop(IRC *irc, void *userdata){
+    int count = 0;
+
+    ioctl(irc->sock, FIONREAD, &count);
+
+    if (count > 0) {
+        uint8_t data[count + 1];
+        data[count] = 0;
+        recv(irc->sock, data, count, MSG_NOSIGNAL);
+        printf("%s", data);
+
+        if (strncmp((char *)data, "PING", 4) == 0) {
+            data[1] = 'O';
+
+            int i;
+            for (i = 0; i < count; ++i) {
+                if (data[i] == '\n') {
+                    ++i;
+                    break;
+                }
+            }
+
+            network_send(irc->sock, (char *)data, i);
+        } else if (strncmp((char *)data, "ERROR", 4) == 0) {
+            DEBUG("main", "Disconnected from the irc server reconnecting...");
+            if (!irc_reconnect(irc)) {
+                DEBUG("main", "Unable to reconnect. Dying...");
+                return;
+            }
+        } else if (data[0] == ':') {
+            irc->message_callback(irc, (char *)data, userdata);
+        }
+
+        int error = 0;
+        socklen_t len = sizeof(error);
+        if (irc->sock < 0 || getsockopt(irc->sock, SOL_SOCKET, SO_ERROR, &error, &len) != 0) {
+            DEBUG("main", "Socket has gone bad. Error: %d. Reconnecting...", error);
+            if (irc_reconnect(irc)) {
+                DEBUG("main", "Unable to reconnect. Dying...");
+                return;
+            }
+        }
+    }
+}
+
+void irc_set_message_callback(IRC *irc, bool (*func)(IRC *irc, char *message, void *userdata)){
+    irc->message_callback = func;
+}
+
+void irc_set_join_callback(IRC *irc, bool (*func)(IRC *irc, char *channel, void *userdata)){
+    irc->join_callback = func;
+}
+
+void irc_set_leave_callback(IRC *irc, bool (*func)(IRC *irc, char *channel, void *userdata)){
+    irc->leave_callback = func;
+}
+
+void irc_set_list_callback(IRC *irc, bool(*func)(IRC *irc, char *channel, void *userdata)){
+    irc->list_callback = func;
 }

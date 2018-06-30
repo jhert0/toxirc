@@ -16,13 +16,21 @@ struct channel {
 };
 
 struct irc {
+    int sock;
     char *server;
     char *port;
+    bool connected;
+
+    //Channel data
     struct channel *channels;
     uint32_t num_channels;
     uint32_t size_channels;
-    int sock;
-    bool connected;
+
+    //Callbacks
+    bool (*join_callback)(struct irc *irc, char *channel, void *userdata);
+    bool (*leave_callback)(struct irc *irc, char *channel, void *userdata);
+    bool (*list_callback)(struct irc *irc, char *channel, void *userdata);
+    bool (*message_callback)(struct irc *irc, char *message, void *userdata);
 };
 
 typedef struct irc IRC;
@@ -116,5 +124,19 @@ char *irc_get_channel_by_group(IRC *irc, uint32_t group_num);
  * on failure returns false
  */
 bool irc_in_channel(IRC *irc, char *channel);
+
+int irc_command_list(int sock, char *channel, char *users);
+
+int irc_command_topic(int sock, char *channel);
+
+void irc_loop(IRC *irc, void *userdata);
+
+void irc_set_message_callback(IRC *irc, bool (*func)(IRC *irc, char *message, void *userdata));
+
+void irc_set_join_callback(IRC *irc, bool (*func)(IRC *irc, char *channel, void *userdata));
+
+void irc_set_leave_callback(IRC *irc, bool (*func)(IRC *irc, char *channel, void *userdata));
+
+void irc_set_list_callback(IRC *irc, bool(*func)(IRC *irc, char *channel, void *userdata));
 
 #endif
