@@ -169,16 +169,9 @@ bool tox_connect(Tox *tox){
 }
 
 void tox_group_send_msg(Tox *tox, uint32_t group_num, char *nick, char *msg){
-    size_t size = strlen(nick) + strlen(msg) + 2;
-    char *message = malloc(size);
-    if (!message) {
-        DEBUG("Tox", "Could not allocate memory for group message.");
-        return;
-    }
-
-    sprintf(message, "%s: %s", nick, msg);
-    tox_conference_send_message(tox, group_num, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)message, size, NULL);
-    free(message);
+    char message[TOX_MAX_MESSAGE_LENGTH];
+    size_t length = snprintf(message, sizeof(message), "<%s> %s", nick, msg);
+    tox_conference_send_message(tox, group_num, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)message, length, NULL);
 }
 
 bool tox_is_friend_master(Tox *tox, int fid){

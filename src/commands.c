@@ -172,16 +172,9 @@ static bool command_id(Tox *tox, IRC *UNUSED(irc), int fid, char *UNUSED(arg)){
 static bool command_help(Tox *tox, IRC *UNUSED(irc), int fid, char *UNUSED(arg)){
     for (int i = 0; commands[i].cmd; i++) {
         if (!commands[i].master || (commands[i].master && tox_is_friend_master(tox, fid))) {
-            char *message = malloc(strlen(commands[i].cmd) + strlen(commands[i].desc) + 3);
-            if (!message) {
-                return false;
-            }
-
-            sprintf(message, "%s: %s", commands[i].cmd, commands[i].desc);
-
-            tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) message, strlen(message), NULL);
-
-            free(message);
+            char message[TOX_MAX_MESSAGE_LENGTH];
+            size_t length = sprintf(message, "%s: %s", commands[i].cmd, commands[i].desc);
+            tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *) message, length, NULL);
         }
     }
 
