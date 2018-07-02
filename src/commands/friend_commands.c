@@ -40,7 +40,7 @@ struct Command friend_commands[MAX_CMDS] = {
 };
 
 static bool command_invite(Tox *tox, IRC *irc, uint32_t fid, char *arg){
-    int index;
+    uint32_t index;
 
     if (!arg) {
         index = irc_get_channel_index(irc, settings.default_channel);
@@ -48,7 +48,7 @@ static bool command_invite(Tox *tox, IRC *irc, uint32_t fid, char *arg){
         index = irc_get_channel_index(irc, arg);
     }
 
-    if (index == -1 || !irc->channels[index].in_channel) {
+    if (index == UINT32_MAX || !irc->channels[index].in_channel) {
         return false;
     }
 
@@ -68,8 +68,8 @@ static bool command_join(Tox *tox, IRC *irc, uint32_t fid, char *arg){
         return false;
     }
 
-    int index = irc_get_channel_index(irc, arg);
-    if (index != -1) {
+    uint32_t index = irc_get_channel_index(irc, arg);
+    if (index != UINT32_MAX) {
         tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)"I am already in that channel.", sizeof("I am already in that channel.") - 1, NULL);
         return false;
     }
@@ -99,8 +99,8 @@ static bool command_leave(Tox *tox, IRC *irc, uint32_t fid, char *arg){
         return false;
     }
 
-    int index = irc_get_channel_index(irc, arg);
-    if (index == -1) {
+    uint32_t index = irc_get_channel_index(irc, arg);
+    if (index == UINT32_MAX) {
         DEBUG("Commands", "Could not get irc channel index.");
         return false;
     }

@@ -67,14 +67,14 @@ bool irc_join_channel(IRC *irc, char *channel, uint32_t group_num);
 /*
  * Rejoins the channel at the specified index
  */
-void irc_rejoin_channel(IRC *irc, int index);
+void irc_rejoin_channel(IRC *irc, uint32_t index);
 
 /*
  * Leaves the specified IRC channel
  * returns true on success
  * returns false on failure
  */
-bool irc_leave_channel(IRC *irc, int index);
+bool irc_leave_channel(IRC *irc, uint32_t index);
 
 /*
  * Disconnects from the IRC server
@@ -100,9 +100,9 @@ void irc_free(IRC *irc);
 /*
  * Gets the specifed channel's index
  * returns the index on success
- * returns -1 on failure
+ * returns UINT32_MAX on failure
  */
-int irc_get_channel_index(IRC *irc, char *channel);
+uint32_t irc_get_channel_index(IRC *irc, char *channel);
 
 /*
  * Gets the specified channel's group number
