@@ -119,6 +119,7 @@ static bool command_join(Tox *tox, IRC *irc, int fid, char *arg){
 
     irc_join_channel(irc, arg, group_num);
 
+    tox_conference_set_title(tox, group_num, (const uint8_t *)arg, strlen(arg), NULL);
     tox_conference_invite(tox, fid, group_num, NULL);
 
     return true;

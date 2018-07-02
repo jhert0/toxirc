@@ -58,6 +58,7 @@ int main(void){
         return 4;
     }
 
+    tox_conference_set_title(tox, group_num, (const uint8_t *)settings.default_channel, strlen(settings.default_channel), NULL);
     irc_join_channel(irc, settings.default_channel, group_num);
 
     while (!exit_bot) {
