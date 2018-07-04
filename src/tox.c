@@ -8,10 +8,11 @@
 
 #include "callbacks/tox_callbacks.h"
 
-#include <tox/tox.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <tox/tox.h>
 
 Tox *tox_init(){
     int status;

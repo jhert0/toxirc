@@ -2,9 +2,6 @@
 
 #include "../irc.h"
 #include "../logging.h"
-#include "../macros.h"
-#include "../settings.h"
-#include "../tox.h"
 
 #include <stdlib.h>
 #include <stdbool.h>

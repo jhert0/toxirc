@@ -3,7 +3,6 @@
 #include "logging.h"
 #include "network.h"
 #include "settings.h"
-#include "tox.h"
 
 #include "commands/commands.h"
 #include "commands/irc_commands.h"
