@@ -19,6 +19,6 @@ bool tox_connect(Tox *tox);
 
 void tox_group_send_msg(Tox *tox, uint32_t group_num, char *nick, char *msg);
 
-bool tox_is_friend_master(Tox *tox, int fid);
+bool tox_is_friend_master(Tox *tox, uint32_t fid);
 
 #endif

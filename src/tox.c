@@ -72,7 +72,7 @@ void tox_group_send_msg(Tox *tox, uint32_t group_num, char *nick, char *msg){
     tox_conference_send_message(tox, group_num, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)message, length, NULL);
 }
 
-bool tox_is_friend_master(Tox *tox, int fid){
+bool tox_is_friend_master(Tox *tox, uint32_t fid){
     uint8_t public_key_bin[TOX_ADDRESS_SIZE];
     if (tox_friend_get_public_key(tox, fid, public_key_bin, NULL) == 0) {
         return false;

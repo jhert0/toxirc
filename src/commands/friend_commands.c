@@ -23,6 +23,7 @@ static bool command_name(Tox *tox, IRC *irc, uint32_t index, char *arg);
 static bool command_default(Tox *tox, IRC *irc, uint32_t index, char *arg);
 static bool command_master(Tox *tox, IRC *irc, uint32_t index, char *arg);
 static bool command_help(Tox *tox, IRC *irc, uint32_t index, char *arg);
+static bool command_warn(Tox *tox, IRC *irc, uint32_t fid, char *arg);
 
 struct Command friend_commands[MAX_CMDS] = {
     { "invite",  "Request an invite to the default channel or specify one.", false, command_invite  },
@@ -35,6 +36,7 @@ struct Command friend_commands[MAX_CMDS] = {
     { "name",    "set the bots name",                                        true,  command_name    },
     { "default", "sets the default channel",                                 true,  command_default },
     { "master",  "sets the master of the bot",                               true,  command_master  },
+    { "warn",    "Warns all channels and groupchats the bot is going down.", true,  command_warn    },
     { "help",    "This message.",                                            false, command_help    },
     { NULL,      NULL,                                                       false, NULL            },
 };
@@ -235,6 +237,22 @@ static bool command_master(Tox *tox, IRC *UNUSED(irc), uint32_t fid, char *arg){
     strcpy(settings.master, arg);
 
     settings_save(SETTINGS_FILE);
+
+    return true;
+}
+
+static bool command_warn(Tox *tox, IRC *irc, uint32_t fid, char *UNUSED(arg)){
+    if (!tox_is_friend_master(tox, fid)){
+        return false;
+    }
+
+    char warning[TOX_MAX_MESSAGE_LENGTH]; //TODO: allow the message to be passed as an argument
+    size_t length = snprintf(warning, sizeof(warning), "%s is about to be shutdown. Sorry for the inconvenience.", settings.name);
+
+    for (uint32_t i = 0; i < irc->num_channels; i++) {
+        irc_message(irc, irc->channels[i].name, warning);
+        tox_conference_send_message(tox, irc->channels[i].group_num, TOX_MESSAGE_TYPE_NORMAL, (const uint8_t *)warning, length, NULL);
+    }
 
     return true;
 }
