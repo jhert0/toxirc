@@ -56,7 +56,7 @@ static void friend_message_callback(Tox *tox, uint32_t fid, TOX_MESSAGE_TYPE typ
 
 static void group_message_callback(Tox *tox, uint32_t groupnumber,
                                    uint32_t peer_number, TOX_MESSAGE_TYPE UNUSED(type),
-                                   const uint8_t *message, size_t UNUSED(length), void *userdata){
+                                   const uint8_t *message, size_t length, void *userdata){
 
     if (tox_conference_peer_number_is_ours(tox, groupnumber, peer_number, NULL)) {
         return;
@@ -82,7 +82,10 @@ static void group_message_callback(Tox *tox, uint32_t groupnumber,
         return;
     }
 
-    irc_message(irc, channel, (char *)name, (char *)message);
+    char buffer[name_len + length + 3];
+    sprintf(buffer, "<%s> %s", name, message);
+
+    irc_message(irc, channel, buffer);
 }
 
 static void friend_request_callback(Tox *tox, const uint8_t *public_key, const uint8_t *UNUSED(data),

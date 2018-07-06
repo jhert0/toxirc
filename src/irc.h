@@ -79,9 +79,9 @@ void irc_disconnect(IRC *irc);
 void irc_leave_all_channels(IRC *irc);
 
 /*
- * Sends the specified name and message to the specified channel
+ * Sends the specified message to the specified channel
  */
-int irc_message(IRC *irc, char *channel, char *name, char *msg);
+int irc_message(IRC *irc, char *channel, char *msg);
 
 /*
  * Frees the IRC struct and irc->channels.
