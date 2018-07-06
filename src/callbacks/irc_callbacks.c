@@ -11,17 +11,17 @@
 
 #include <tox/tox.h>
 
-static bool message_callback(IRC *irc, char *buffer, void *arg){
+static void message_callback(IRC *irc, char *buffer, void *arg){
     Tox *tox = arg;
 
-    char nick[32], user[32], server[32], channel[IRC_MAX_CHANNEL_LENGTH], msg[256];
-    int matches = sscanf(buffer, ":%31[^!]!%31[^@]@%31s PRIVMSG %49s :%255[^\r\n]", nick, user, server, channel, msg);
+    char nick[32], user[32], server[100], channel[IRC_MAX_CHANNEL_LENGTH], msg[256];
+    int matches = sscanf(buffer, ":%31[^!]!%31[^@]@%99s PRIVMSG %49s :%255[^\r\n]", nick, user, server, channel, msg);
     if (matches != 5) {
-        return false;
+        return;
     }
 
     if (msg[0] == '~') { //dont sync messages that begin with ~
-        return true;
+        return;
     } else if (msg[0] == '!') {
         size_t msg_length = strlen(msg);
         size_t cmd_length = command_parse(msg, msg_length);
@@ -45,17 +45,15 @@ static bool message_callback(IRC *irc, char *buffer, void *arg){
             irc_message(irc, channel, "Invalid command.");
         }
 
-        return true; //dont sync commands
+        return; //dont sync commands
     }
 
     uint32_t group = irc_get_channel_group(irc, channel);
     if (group == UINT32_MAX) {
-        return false;
+        return;
     }
 
     tox_group_send_msg(tox, group, nick, msg);
-
-    return true;
 }
 
 void irc_callbacks_setup(IRC *irc){

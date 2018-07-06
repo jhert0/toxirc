@@ -222,12 +222,12 @@ bool irc_in_channel(IRC *irc, char *channel){
     return false;
 }
 
-int irc_command_list(int sock, char *channel, char *users){
-    return network_send_fmt(sock, "LIST %s\n", channel);
+int irc_command_list(IRC *irc, char *channel, char *users){
+    return network_send_fmt(irc->sock, "LIST %s\n", channel);
 }
 
-int irc_command_topic(int sock, char *channel){
-    return network_send_fmt(sock, "TOPIC %s\n", channel);
+int irc_command_topic(IRC *irc, char *channel){
+    return network_send_fmt(irc->sock, "TOPIC %s\n", channel);
 }
 
 void irc_loop(IRC *irc, void *userdata){
@@ -275,18 +275,18 @@ void irc_loop(IRC *irc, void *userdata){
     }
 }
 
-void irc_set_message_callback(IRC *irc, bool (*func)(IRC *irc, char *message, void *userdata)){
+void irc_set_message_callback(IRC *irc, void (*func)(IRC *irc, char *message, void *userdata)){
     irc->message_callback = func;
 }
 
-void irc_set_join_callback(IRC *irc, bool (*func)(IRC *irc, char *channel, void *userdata)){
+void irc_set_join_callback(IRC *irc, void (*func)(IRC *irc, char *channel, void *userdata)){
     irc->join_callback = func;
 }
 
-void irc_set_leave_callback(IRC *irc, bool (*func)(IRC *irc, char *channel, void *userdata)){
+void irc_set_leave_callback(IRC *irc, void (*func)(IRC *irc, char *channel, void *userdata)){
     irc->leave_callback = func;
 }
 
-void irc_set_list_callback(IRC *irc, bool(*func)(IRC *irc, char *channel, void *userdata)){
+void irc_set_list_callback(IRC *irc, void (*func)(IRC *irc, char *channel, void *userdata)){
     irc->list_callback = func;
 }

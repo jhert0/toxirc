@@ -24,7 +24,7 @@ struct Command group_commands[MAX_CMDS] = {
 static bool command_users(Tox *tox, IRC *irc, uint32_t group_num, char *UNUSED(arg)){
     char *channel_name = irc_get_channel_by_group(irc, group_num);
 
-    irc_command_list(irc->sock, channel_name, NULL);
+    irc_command_list(irc, channel_name, NULL);
 
     return true;
 }
