@@ -102,28 +102,28 @@ void irc_free(IRC *irc);
  * returns the index on success
  * returns UINT32_MAX on failure
  */
-uint32_t irc_get_channel_index(IRC *irc, char *channel);
+uint32_t irc_get_channel_index(const IRC *irc, const char *channel);
 
 /*
  * Gets the specified channel's group number
  * returns the group number on success
  * returns UINT32_MAX on failure
  */
-uint32_t irc_get_channel_group(IRC *irc, char *channel);
+uint32_t irc_get_channel_group(const IRC *irc, const char *channel);
 
 /*
  * Gets the channel name for the specified group number
  * on success returns the channel name
  * on failure returns NULL
  */
-char *irc_get_channel_by_group(IRC *irc, uint32_t group_num);
+char *irc_get_channel_by_group(const IRC *irc, uint32_t group_num);
 
 /*
  * Checks if the bot is in the specified irc channel
  * on success returns true
  * on failure returns false
  */
-bool irc_in_channel(IRC *irc, char *channel);
+bool irc_in_channel(const IRC *irc, const char *channel);
 
 int irc_command_list(IRC *irc, char *channel, char *users);
 

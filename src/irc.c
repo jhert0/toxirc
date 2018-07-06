@@ -85,7 +85,7 @@ bool irc_reconnect(IRC *irc){
         return false;
     }
 
-    for (unsigned int i = 0; i < irc->num_channels; i++) {
+    for (uint32_t i = 0; i < irc->num_channels; i++) {
         irc_rejoin_channel(irc, i);
     }
 
@@ -182,7 +182,7 @@ int irc_message(IRC *irc, char *channel, char *msg){
     return network_send_fmt(irc->sock, "PRIVMSG %s :%s\n", channel, msg);
 }
 
-uint32_t irc_get_channel_index(IRC *irc, char *channel){
+uint32_t irc_get_channel_index(const IRC *irc, const char *channel){
     for (uint32_t i = 0; i < irc->num_channels; i++) {
         if (strcmp(channel, irc->channels[i].name) == 0) {
             return i;
@@ -192,7 +192,7 @@ uint32_t irc_get_channel_index(IRC *irc, char *channel){
     return UINT32_MAX;
 }
 
-uint32_t irc_get_channel_group(IRC *irc, char *channel){
+uint32_t irc_get_channel_group(const IRC *irc, const char *channel){
     for (uint32_t i = 0; i < irc->num_channels; i++) {
         if (strcmp(channel, irc->channels[i].name) == 0) {
             return i;
@@ -202,7 +202,7 @@ uint32_t irc_get_channel_group(IRC *irc, char *channel){
     return UINT32_MAX;
 }
 
-char *irc_get_channel_by_group(IRC *irc, uint32_t group_num){
+char *irc_get_channel_by_group(const IRC *irc, uint32_t group_num){
     for (uint32_t i = 0; i < irc->num_channels; i++) {
         if (irc->channels[i].group_num == group_num) {
             return irc->channels[i].name;
@@ -212,7 +212,7 @@ char *irc_get_channel_by_group(IRC *irc, uint32_t group_num){
     return NULL;
 }
 
-bool irc_in_channel(IRC *irc, char *channel){
+bool irc_in_channel(const IRC *irc, const char *channel){
     for (uint32_t i = 0; i < irc->num_channels; i++) {
         if (strcmp(irc->channels[i].name, channel) == 0 && irc->channels[i].in_channel) {
             return true;

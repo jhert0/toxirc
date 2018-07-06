@@ -115,7 +115,7 @@ static bool command_leave(Tox *tox, IRC *irc, uint32_t fid, char *arg){
 }
 
 static bool command_list(Tox *tox, IRC *irc, uint32_t fid, char *UNUSED(arg)){
-    for (unsigned int i = 0; i < irc->num_channels; i++) {
+    for (uint32_t i = 0; i < irc->num_channels; i++) {
         if (irc->channels[i].in_channel) {
             tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (const uint8_t *)irc->channels[i].name, strlen(irc->channels[i].name), NULL);
         }
@@ -174,7 +174,7 @@ static bool command_la(Tox *tox, IRC *irc, uint32_t fid , char *UNUSED(arg)){
         return false;
     }
 
-    for (unsigned int i = 0; i < irc->num_channels; i++) {
+    for (uint32_t i = 0; i < irc->num_channels; i++) {
         tox_conference_delete(tox, irc->channels[i].group_num, NULL);
     }
 
