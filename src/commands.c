@@ -182,7 +182,7 @@ static bool command_help(Tox *tox, IRC *UNUSED(irc), int fid, char *UNUSED(arg))
     return true;
 }
 
-static bool command_info(Tox *tox, IRC *UNUSED(irc), int fid, char *UNUSED(arg)){
+static bool command_info(Tox *tox, IRC *irc, int fid, char *UNUSED(arg)){
     int num_frends = tox_self_get_friend_list_size(tox);
 
     uint32_t friends[num_frends];
@@ -195,8 +195,8 @@ static bool command_info(Tox *tox, IRC *UNUSED(irc), int fid, char *UNUSED(arg))
         }
     }
 
-    char message[200];
-    int length = snprintf(message, sizeof(message), "I am friends with %d people. %d of them are online.", num_frends, online);
+    char message[TOX_MAX_MESSAGE_LENGTH];
+    int length = snprintf(message, sizeof(message), "I am friends with %d people. %d of them are online. I am currently syncing %u channel(s)", num_frends, online, irc->num_channels);
 
     tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)message, length, NULL);
 
