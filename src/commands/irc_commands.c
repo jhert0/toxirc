@@ -8,11 +8,15 @@
 #include <string.h>
 
 static bool command_users(Tox *tox, IRC *irc, uint32_t index, char *arg);
+static bool command_topic(Tox *tox, IRC *irc, uint32_t index, char *arg);
+static bool command_help(Tox *tox, IRC *irc, uint32_t index, char *arg);
 
 //TODO: when new groupchats are merged add in a command for getting the groupchats id
 struct Command irc_commands[MAX_CMDS] = {
-    { "!users", "Retrieve the users in the tox groupchat", false, command_users },
-    { NULL,     NULL,                                      false, NULL          },
+    { "!users", "Retrieve the users in the tox groupchat",                             false, command_users },
+    { "!topic", "Gets the topic for the groupchat this channel is being synced with.", false, command_topic },
+    { "!help",  "This message.",                                                       false, command_help  },
+    { NULL,     NULL,                                                                  false, NULL          },
 };
 
 static bool command_users(Tox *tox, IRC *irc, uint32_t index, char *UNUSED(arg)){
@@ -46,5 +50,32 @@ static bool command_users(Tox *tox, IRC *irc, uint32_t index, char *UNUSED(arg))
 
     irc_message(irc, irc->channels[index].name, buffer);
 
+    return true;
+}
+
+static bool command_topic(Tox *tox, IRC *irc, uint32_t index, char *UNUSED(arg)){
+    uint32_t group_num = irc->channels[index].group_num;
+    size_t topic_size = tox_conference_get_title_size(tox, group_num, NULL);
+
+    uint8_t topic[topic_size];
+    tox_conference_get_title(tox, group_num, topic, NULL);
+    topic[topic_size] = '\0';
+    topic_size++;
+
+    char buffer[14 + topic_size];
+    sprintf(buffer, "The topic is: %s", topic);
+
+    irc_message(irc, irc->channels[index].name, buffer);
+
+    return true;
+}
+
+
+static bool command_help(Tox *UNUSED(tox), IRC *irc, uint32_t index, char *UNUSED(arg)){
+    for (int i = 0; irc_commands[i].cmd; i++) {
+        char message[strlen(irc_commands[i].cmd) + strlen(irc_commands[i].desc) + 3];
+        sprintf(message, "%s: %s", irc_commands[i].cmd, irc_commands[i].desc);
+        irc_message(irc, irc->channels[index].name, message);
+    }
     return true;
 }
