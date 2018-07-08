@@ -43,23 +43,3 @@ char *command_parse_arg(char *msg, size_t msg_length, size_t cmd_length, int *ar
 
     return arg;
 }
-
-bool command_execute(const Command *cmds, char *msg, size_t msg_length){
-    int arg_length;
-    size_t cmd_length = command_parse(msg, msg_length);
-    char *arg = command_parse_arg(msg, msg_length, cmd_length, &arg_length);
-
-    bool valid = false;
-    for (int i = 0; cmds[i].cmd; i++) {
-        if (strncmp(msg, cmds[i].cmd, strlen(cmds[i].cmd)) == 0) {
-            //cmds[i].func(tox, irc, channel_index, NULL);
-            valid = true;
-        }
-    }
-
-    if (arg) {
-        free(arg);
-    }
-
-    return valid;
-}
