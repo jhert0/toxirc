@@ -125,9 +125,11 @@ char *irc_get_channel_by_group(const IRC *irc, uint32_t group_num);
  */
 bool irc_in_channel(const IRC *irc, const char *channel);
 
-int irc_command_list(IRC *irc, char *channel, char *users);
+int irc_command_list(IRC *irc, const char *channel);
 
-int irc_command_topic(IRC *irc, char *channel);
+int irc_command_topic(IRC *irc, const char *channel, const char *topic);
+
+int irc_command_names(IRC *irc, const char *channel);
 
 void irc_loop(IRC *irc, void *userdata);
 

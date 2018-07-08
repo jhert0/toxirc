@@ -222,12 +222,20 @@ bool irc_in_channel(const IRC *irc, const char *channel){
     return false;
 }
 
-int irc_command_list(IRC *irc, char *channel, char *users){
+int irc_command_list(IRC *irc, const char *channel){
     return network_send_fmt(irc->sock, "LIST %s\n", channel);
 }
 
-int irc_command_topic(IRC *irc, char *channel){
+int irc_command_topic(IRC *irc, const char *channel, const char *topic){
+    if (topic) {
+        return network_send_fmt(irc->sock, "TOPIC %s %s\n", channel, topic);
+    }
+
     return network_send_fmt(irc->sock, "TOPIC %s\n", channel);
+}
+
+int irc_command_names(IRC *irc, const char *channel){
+    return network_send_fmt(irc->sock, "NAMES %s\n", channel);
 }
 
 void irc_loop(IRC *irc, void *userdata){
