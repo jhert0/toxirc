@@ -39,6 +39,10 @@ SETTINGS settings = {
     .port = "6667",
     .default_channel = "#toxirc",
     .verbose = true,
+    .characters = {
+        { "!", "Command prefix." },
+        { "~", "Prevents the message from being synced." },
+    },
 };
 
 static void settings_write_string(char *file, const char *section, char *key, char *value){
@@ -60,6 +64,8 @@ void settings_save(char *file){
     settings_write_string(file, sections[SECTION_BOT], "master", settings.master);
     settings_write_string(file, sections[SECTION_BOT], "default_channel", settings.default_channel);
     settings_write_bool(file, sections[SECTION_BOT], "verbose", settings.verbose);
+    settings_write_string(file, sections[SECTION_BOT], "cmd_prefix", settings.characters[CHAR_CMD_PREFIX].prefix);
+    settings_write_string(file, sections[SECTION_BOT], "dont_sync_prefix", settings.characters[CHAR_NO_SYNC_PREFIX].prefix);
 
     //Tox
     settings_write_bool(file, sections[SECTION_TOX], "ipv6", settings.ipv6);

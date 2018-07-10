@@ -4,6 +4,7 @@
 #include "../macros.h"
 #include "../logging.h"
 #include "../save.h"
+#include "../settings.h"
 
 #include "../commands/group_commands.h"
 #include "../commands/friend_commands.h"
@@ -29,18 +30,24 @@ static void friend_message_callback(Tox *tox, uint32_t fid, TOX_MESSAGE_TYPE typ
 
     length++;
 
-    int arg_length;
-    size_t cmd_length = command_parse(msg, length);
+    size_t cmd_length;
+    char *cmd = command_parse(msg, length, &cmd_length);
+    if (!cmd) {
+        return;
+    }
+
+    size_t arg_length;
     char *arg = command_parse_arg(msg, length, cmd_length, &arg_length);
 
     bool valid = false;
     for (int i = 0; friend_commands[i].cmd; i++) {
-        if (strncmp(msg, friend_commands[i].cmd, strlen(friend_commands[i].cmd)) == 0) {
+        if (strncmp(cmd, friend_commands[i].cmd, strlen(friend_commands[i].cmd)) == 0) {
             friend_commands[i].func(tox, irc, fid, arg);
             valid = true;
         }
     }
 
+    free(cmd);
     if (arg) {
         free(arg);
     }
@@ -62,9 +69,9 @@ static void group_message_callback(Tox *tox, uint32_t groupnumber,
 
     IRC *irc = userdata;
 
-    if (message[0] == '~'){ //messages beggining with ~ are not synced with irc
+    if (strncmp((char *)message, settings.characters[CHAR_NO_SYNC_PREFIX].prefix, strlen(settings.characters[CHAR_NO_SYNC_PREFIX].prefix)) == 0){ //messages beggining with ~ are not synced with irc
         return;
-    } else if (message[0] == '!') {
+    } else if (strncmp((char *)message, settings.characters[CHAR_CMD_PREFIX].prefix, strlen(settings.characters[CHAR_CMD_PREFIX].prefix)) == 0) {
         char msg[TOX_MAX_MESSAGE_LENGTH];
         length = MIN(TOX_MAX_MESSAGE_LENGTH - 1, length);
         memcpy(msg, message, length);
@@ -72,18 +79,24 @@ static void group_message_callback(Tox *tox, uint32_t groupnumber,
 
         length++;
 
-        int arg_length;
-        size_t cmd_length = command_parse(msg, length);
+        size_t cmd_length;
+        char *cmd = command_parse(msg, length, &cmd_length);
+        if (!cmd) {
+            return;
+        }
+
+        size_t arg_length;
         char *arg = command_parse_arg(msg, length, cmd_length, &arg_length);
 
         bool valid = false;
         for (int i = 0; group_commands[i].cmd; i++) {
-            if (strncmp(msg, group_commands[i].cmd, strlen(group_commands[i].cmd)) == 0) {
+            if (strncmp(cmd, group_commands[i].cmd, strlen(group_commands[i].cmd)) == 0) {
                 group_commands[i].func(tox, irc, groupnumber, NULL);
                 valid = true;
             }
         }
 
+        free(cmd);
         if (arg) {
             free(arg);
         }

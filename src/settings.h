@@ -15,6 +15,17 @@
 
 #include "irc.h"
 
+enum {
+    CHAR_CMD_PREFIX,
+    CHAR_NO_SYNC_PREFIX,
+    CHAR_MAX,
+};
+
+struct special_characters {
+    char *prefix;
+    char *desc;
+};
+
 struct Settings {
     char name[TOX_MAX_NAME_LENGTH];
     char status[TOX_MAX_STATUS_MESSAGE_LENGTH];
@@ -25,6 +36,7 @@ struct Settings {
     char port[IRC_PORT_LENGTH];
     char default_channel[IRC_MAX_CHANNEL_LENGTH];
     bool verbose;
+    struct special_characters characters[CHAR_MAX];
 };
 
 typedef struct Settings SETTINGS;

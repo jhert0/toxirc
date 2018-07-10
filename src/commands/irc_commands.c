@@ -3,6 +3,7 @@
 #include "commands.h"
 
 #include "../macros.h"
+#include "../settings.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -10,13 +11,15 @@
 static bool command_users(Tox *tox, IRC *irc, uint32_t index, char *arg);
 static bool command_topic(Tox *tox, IRC *irc, uint32_t index, char *arg);
 static bool command_help(Tox *tox, IRC *irc, uint32_t index, char *arg);
+static bool command_characters(Tox *tox, IRC *irc, uint32_t index, char *arg);
 
 //TODO: when new groupchats are merged add in a command for getting the groupchats id
 struct Command irc_commands[MAX_CMDS] = {
-    { "!users", "Retrieve the users in the tox groupchat",                             false, command_users },
-    { "!topic", "Gets the topic for the groupchat this channel is being synced with.", false, command_topic },
-    { "!help",  "This message.",                                                       false, command_help  },
-    { NULL,     NULL,                                                                  false, NULL          },
+    { "users",      " Retrieve the users in the tox groupchat",                            false, command_users      },
+    { "topic",      "Gets the topic for the groupchat this channel is being synced with.", false, command_topic      },
+    { "characters", "Gives information about all the special characters",                  false, command_characters },
+    { "help",  "This message.",                                                            false, command_help       },
+    { NULL,     NULL,                                                                      false, NULL               },
 };
 
 static bool command_users(Tox *tox, IRC *irc, uint32_t index, char *UNUSED(arg)){
@@ -41,7 +44,7 @@ static bool command_users(Tox *tox, IRC *irc, uint32_t index, char *UNUSED(arg))
     }
 
     char buffer[33 + names_size + peer_count]; //33 for string, names_size for the names, peer_count for spaces in between names
-    snprintf(buffer, sizeof(buffer), "There are %u in the groupchat: ", peer_count);
+    snprintf(buffer, sizeof(buffer), "There are %u users in the groupchat: ", peer_count);
 
     for (uint32_t i = 0; i < peer_count; i++) {
         strncat(buffer, (const char *)names[i], name_lens[i]);
@@ -73,9 +76,20 @@ static bool command_topic(Tox *tox, IRC *irc, uint32_t index, char *UNUSED(arg))
 
 static bool command_help(Tox *UNUSED(tox), IRC *irc, uint32_t index, char *UNUSED(arg)){
     for (int i = 0; irc_commands[i].cmd; i++) {
-        char message[strlen(irc_commands[i].cmd) + strlen(irc_commands[i].desc) + 3];
-        sprintf(message, "%s: %s", irc_commands[i].cmd, irc_commands[i].desc);
+        char message[strlen(settings.characters[CHAR_CMD_PREFIX].prefix) + strlen(irc_commands[i].cmd) + strlen(irc_commands[i].desc) + 3];
+        sprintf(message, "%s%s: %s", settings.characters[CHAR_CMD_PREFIX].prefix, irc_commands[i].cmd, irc_commands[i].desc);
         irc_message(irc, irc->channels[index].name, message);
     }
+
+    return true;
+}
+
+static bool command_characters(Tox *UNUSED(tox), IRC *irc, uint32_t index, char *UNUSED(arg)){
+    for (unsigned int i = 0; i < CHAR_MAX; i++){
+        char message[strlen(settings.characters[i].prefix) + strlen(settings.characters[i].desc) + 2];
+        sprintf(message, "%s: %s", settings.characters[i].prefix, settings.characters[i].desc);
+        irc_message(irc, irc->channels[index].name, message);
+    }
+
     return true;
 }

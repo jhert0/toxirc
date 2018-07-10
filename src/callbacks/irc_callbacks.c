@@ -1,6 +1,7 @@
 #include "irc_callbacks.h"
 
 #include "../irc.h"
+#include "../settings.h"
 #include "../tox.h"
 
 #include "../commands/irc_commands.h"
@@ -20,23 +21,30 @@ static void message_callback(IRC *irc, char *buffer, void *arg){
         return;
     }
 
-    if (msg[0] == '~') { //dont sync messages that begin with ~
+    if (strncmp(msg, settings.characters[CHAR_NO_SYNC_PREFIX].prefix, strlen(settings.characters[CHAR_NO_SYNC_PREFIX].prefix)) == 0) { //dont sync messages that begin with ~
         return;
-    } else if (msg[0] == '!') {
+    } else if (strncmp(msg, settings.characters[CHAR_CMD_PREFIX].prefix, strlen(settings.characters[CHAR_CMD_PREFIX].prefix)) == 0) {
         size_t msg_length = strlen(msg);
-        size_t cmd_length = command_parse(msg, msg_length);
-        int arg_length;
+
+        size_t cmd_length;
+        char *cmd = command_parse(msg, msg_length, &cmd_length);
+        if (!cmd) {
+            return;
+        }
+
+        size_t arg_length;
         char *arg = command_parse_arg(msg, msg_length, cmd_length, &arg_length);
 
         bool valid = false;
         for (int i = 0; irc_commands[i].cmd; i++) {
-            if (strncmp(msg, irc_commands[i].cmd, strlen(irc_commands[i].cmd)) == 0) {
+            if (strncmp(cmd, irc_commands[i].cmd, strlen(irc_commands[i].cmd)) == 0) {
                 const uint32_t channel_index = irc_get_channel_index(irc, channel);
                 irc_commands[i].func(tox, irc, channel_index, NULL);
                 valid = true;
             }
         }
 
+        free(cmd);
         if (arg) {
             free(arg);
         }
