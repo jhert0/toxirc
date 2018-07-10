@@ -97,6 +97,10 @@ static void parse_bot_section(const char *key, const char *value) {
         strcpy(settings.default_channel, value);
     } else if (strcmp(key, "verbose") == 0) {
         settings.verbose = STR_TO_BOOL(value);
+    } else if (strcmp(key, "cmd_prefix") == 0) {
+        strcpy(settings.characters[CHAR_CMD_PREFIX].prefix, value);
+    } else if (strcmp(key, "dont_sync_prefix") == 0) {
+        strcpy(settings.characters[CHAR_NO_SYNC_PREFIX].prefix, value);
     }
 }
 
