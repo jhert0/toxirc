@@ -98,9 +98,19 @@ static void parse_bot_section(const char *key, const char *value) {
     } else if (strcmp(key, "verbose") == 0) {
         settings.verbose = STR_TO_BOOL(value);
     } else if (strcmp(key, "cmd_prefix") == 0) {
-        strncpy(settings.characters[CHAR_CMD_PREFIX].prefix, value, MAX_PREFIX);
+        size_t length = strlen(value);
+        if (length > MAX_PREFIX) {
+            length = MAX_PREFIX;
+        }
+        strncpy(settings.characters[CHAR_CMD_PREFIX].prefix, value, length);
+        settings.characters[CHAR_CMD_PREFIX].prefix[length++] = '\0';
     } else if (strcmp(key, "dont_sync_prefix") == 0) {
+        size_t length = strlen(value);
+        if (length > MAX_PREFIX) {
+            length = MAX_PREFIX;
+        }
         strncpy(settings.characters[CHAR_NO_SYNC_PREFIX].prefix, value, MAX_PREFIX);
+        settings.characters[CHAR_NO_SYNC_PREFIX].prefix[length++] = '\0';
     }
 }
 

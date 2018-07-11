@@ -24,7 +24,7 @@ enum {
 #define MAX_PREFIX 3
 
 struct special_characters {
-    char prefix[MAX_PREFIX];
+    char prefix[MAX_PREFIX + 1];
     char *desc;
 };
 
