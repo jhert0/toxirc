@@ -31,7 +31,7 @@ static const char *sections[SECTION_UNKNOWN + 1] = {
 // default settings
 SETTINGS settings = {
     .name = "toxirc",
-    .status = "Send me help for more info.",
+    .status = "Send !help for list of commands.",
     .ipv6 = true,
     .udp = false,
     .master = "",
