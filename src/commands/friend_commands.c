@@ -139,8 +139,8 @@ static bool command_id(Tox *tox, IRC *UNUSED(irc), uint32_t fid, char *UNUSED(ar
 static bool command_help(Tox *tox, IRC *UNUSED(irc), uint32_t fid, char *UNUSED(arg)){
     for (int i = 0; friend_commands[i].cmd; i++) {
         if (!friend_commands[i].master || (friend_commands[i].master && tox_is_friend_master(tox, fid))) {
-            char message[TOX_MAX_MESSAGE_LENGTH];
-            size_t length = snprintf(message, length, "%s: %s", friend_commands[i].cmd, friend_commands[i].desc);
+            char message[TOX_MAX_MESSAGE_LENGTH] = { 0 };
+            size_t length = snprintf(message, sizeof(message), "%s: %s", friend_commands[i].cmd, friend_commands[i].desc);
             tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (const uint8_t *)message, length, NULL);
         }
     }
