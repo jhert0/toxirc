@@ -31,9 +31,9 @@ static const char *sections[SECTION_UNKNOWN + 1] = {
 // default settings
 SETTINGS settings = {
     .name = "toxirc",
-    .status = "Send me help for more info.",
+    .status = "Send help for a list of commands.",
     .ipv6 = true,
-    .udp = false,
+    .udp = true,
     .master = "",
     .server = "chat.freenode.net",
     .port = "6667",
