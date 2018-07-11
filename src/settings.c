@@ -109,7 +109,7 @@ static void parse_bot_section(const char *key, const char *value) {
         if (length > MAX_PREFIX) {
             length = MAX_PREFIX;
         }
-        strncpy(settings.characters[CHAR_NO_SYNC_PREFIX].prefix, value, MAX_PREFIX);
+        strncpy(settings.characters[CHAR_NO_SYNC_PREFIX].prefix, value, length);
         settings.characters[CHAR_NO_SYNC_PREFIX].prefix[length++] = '\0';
     }
 }
