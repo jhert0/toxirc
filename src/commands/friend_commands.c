@@ -26,19 +26,19 @@ static bool command_help(Tox *tox, IRC *irc, uint32_t index, char *arg);
 static bool command_warn(Tox *tox, IRC *irc, uint32_t fid, char *arg);
 
 struct Command friend_commands[MAX_CMDS] = {
-    { "!invite",  "!invite #channelname to get invited to a channel the bot has joined.",   false, command_invite  },
-    { "!join",    "!join #channelname to join a specific channel.",                        false, command_join    },
-    { "!leave",   "!leave #channelname to leave a specific channel.",                      true,  command_leave   },
-    { "!list",    "Shows all channels the bot has joined.",                                 false, command_list    },
-    { "!id",      "Displays this bot's tox ID.",                                            false, command_id      },
-    { "!info",    "Shows additional info about this bot.",                                  false, command_info    },
-    { "!la",      "Forces this bot to leave all channels",                                  true,  command_la      },
-    { "!name",    "Set this bot's name",                                                    true,  command_name    },
-    { "!default", "!default #channelname sets the default channel for !invite.",            true,  command_default },
-    { "!master",  "Add a ToxID to set the bot's owner.",                                    true,  command_master  },
-    { "!warn",    "Warn all channels and groupchats the bot is going down.",                true,  command_warn    },
-    { "!help",    "Displays this list of commands.",                                        false, command_help    },
-    { NULL,      NULL,                                                                      false, NULL            },
+    { "invite",  "invite #channelname to get invited to a channel the bot has joined.",   false, command_invite  },
+    { "join",    "join #channelname to join a specific channel.",                         false, command_join    },
+    { "leave",   "leave #channelname to leave a specific channel.",                       true,  command_leave   },
+    { "list",    "Shows all channels the bot has joined.",                                false, command_list    },
+    { "id",      "Displays this bot's tox ID.",                                           false, command_id      },
+    { "info",    "Shows additional info about this bot.",                                 false, command_info    },
+    { "la",      "Forces this bot to leave all channels",                                 true,  command_la      },
+    { "name",    "Set this bot's name",                                                   true,  command_name    },
+    { "default", "default #channelname sets the default channel for invite.",             true,  command_default },
+    { "master",  "Add a ToxID to set the bot's owner.",                                   true,  command_master  },
+    { "warn",    "Warn all channels and groupchats the bot is going down.",               true,  command_warn    },
+    { "help",    "Displays this list of commands.",                                       false, command_help    },
+    { NULL,      NULL,                                                                    false, NULL            },
 };
 
 static bool command_invite(Tox *tox, IRC *irc, uint32_t fid, char *arg){
