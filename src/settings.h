@@ -1,7 +1,7 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#define SETTINGS_FILE "toxirc.ini"
+#define SETTINGS_FILE "settings.ini"
 
 #include <stdbool.h>
 #include <sys/socket.h>

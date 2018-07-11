@@ -13,7 +13,7 @@ toxirc
 *.tox
 
 # Settings
-toxirc.ini
+settings.ini
 
 # Editors
 GTAGS
