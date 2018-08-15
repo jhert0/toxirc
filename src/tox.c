@@ -59,6 +59,7 @@ bool tox_connect(Tox *tox){
 
         tox_bootstrap(tox, nodes[i].ip, nodes[i].udp_port, key, NULL);
         tox_add_tcp_relay(tox, nodes[i].ip, nodes[i].tcp_port, key, NULL);
+        free(key);
     }
 
     DEBUG("Tox", "Connected to tox network.");

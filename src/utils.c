@@ -31,6 +31,7 @@ off_t get_file_size(char *file){
     fseek(fp, 0, SEEK_END);
     size = ftell(fp);
     fseek(fp, 0, SEEK_SET);
+    fclose(fp);
 
     return size;
 }
