@@ -49,9 +49,11 @@ static void message_callback(IRC *irc, char *buffer, void *arg){
             free(arg);
         }
 
+        /*
         if (!valid) {
             irc_message(irc, channel, "Invalid command.");
         }
+        */
 
         return; //dont sync commands
     }
