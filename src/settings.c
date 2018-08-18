@@ -6,6 +6,7 @@
 
 #include "../third-party/minini/dev/minIni.h"
 
+#include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 
@@ -43,17 +44,25 @@ SETTINGS settings = {
         { "!", "Command prefix." },
         { "~", "Prevents the message from being synced." },
     },
+    .channel_limit = UINT32_MAX,
 };
 
-static void settings_write_string(char *file, const char *section, char *key, char *value){
+static void settings_write_string(const char *file, const char *section, const char *key, const char *value){
     if (ini_puts(section, key, value, file) != 1) {
         DEBUG("Settings", "Could not write  %s to %s", value, file);
     }
 }
 
-static void settings_write_bool(char *file, const char *section, char *key, bool value){
+static void settings_write_bool(const char *file, const char *section, const char *key, bool value){
     if (ini_puts(section, key, BOOL_TO_STR(value), file) != 1) {
         DEBUG("Settings", "Could not write %s to %s", BOOL_TO_STR(value), file);
+    }
+}
+
+
+static void settings_write_int(const char *file, const char *section, const char *key, long value) {
+    if (ini_putl(section, key, value, file) != 1) {
+        DEBUG("Settings", "Could not write %lu to %s", value, file);
     }
 }
 
@@ -66,6 +75,7 @@ void settings_save(char *file){
     settings_write_bool(file, sections[SECTION_BOT], "verbose", settings.verbose);
     settings_write_string(file, sections[SECTION_BOT], "cmd_prefix", settings.characters[CHAR_CMD_PREFIX].prefix);
     settings_write_string(file, sections[SECTION_BOT], "dont_sync_prefix", settings.characters[CHAR_NO_SYNC_PREFIX].prefix);
+    settings_write_int(file, sections[SECTION_BOT], "channel_limit", settings.channel_limit);
 
     //Tox
     settings_write_bool(file, sections[SECTION_TOX], "ipv6", settings.ipv6);
@@ -111,6 +121,8 @@ static void parse_bot_section(const char *key, const char *value) {
         }
         strncpy(settings.characters[CHAR_NO_SYNC_PREFIX].prefix, value, length);
         settings.characters[CHAR_NO_SYNC_PREFIX].prefix[length++] = '\0';
+    } else if (strcmp(key, "channel_limit") == 0) {
+        settings.channel_limit = atol(value);
     }
 }
 

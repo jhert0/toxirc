@@ -24,6 +24,7 @@ static bool command_default(Tox *tox, IRC *irc, uint32_t index, char *arg);
 static bool command_master(Tox *tox, IRC *irc, uint32_t index, char *arg);
 static bool command_help(Tox *tox, IRC *irc, uint32_t index, char *arg);
 static bool command_warn(Tox *tox, IRC *irc, uint32_t fid, char *arg);
+static bool command_limit(Tox *tox, IRC *irc, uint32_t fid, char *arg);
 
 struct Command friend_commands[MAX_CMDS] = {
     { "invite",  "invite #channelname to get invited to a channel the bot has joined.",   false, command_invite  },
@@ -37,6 +38,7 @@ struct Command friend_commands[MAX_CMDS] = {
     { "default", "default #channelname sets the default channel for invite.",             true,  command_default },
     { "master",  "Add a ToxID to set the bot's owner.",                                   true,  command_master  },
     { "warn",    "Warn all channels and groupchats the bot is going down.",               true,  command_warn    },
+    { "limit",   "Limit the number of channels the bot can join.",                        true,  command_limit   },
     { "help",    "Displays this list of commands.",                                       false, command_help    },
     { NULL,      NULL,                                                                    false, NULL            },
 };
@@ -62,6 +64,11 @@ static bool command_invite(Tox *tox, IRC *irc, uint32_t fid, char *arg){
 static bool command_join(Tox *tox, IRC *irc, uint32_t fid, char *arg){
     if (!arg) {
         tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)"An argument is required.", sizeof("An argument is required.") - 1, NULL);
+        return false;
+    }
+
+    if ((irc->num_channels + 1) >= settings.channel_limit) {
+        tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)"Channel Limit reached.", sizeof("Channel limit reached.") - 1, NULL);
         return false;
     }
 
@@ -161,7 +168,7 @@ static bool command_info(Tox *tox, IRC *UNUSED(irc), uint32_t fid, char *UNUSED(
         }
     }
 
-    char message[200];
+    char message[TOX_MAX_MESSAGE_LENGTH];
     int length = snprintf(message, sizeof(message), "I am friends with %d people. %d of them are online.", num_frends, online);
 
     tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)message, length, NULL);
@@ -253,6 +260,21 @@ static bool command_warn(Tox *tox, IRC *irc, uint32_t fid, char *UNUSED(arg)){
         irc_message(irc, irc->channels[i].name, warning);
         tox_conference_send_message(tox, irc->channels[i].group_num, TOX_MESSAGE_TYPE_NORMAL, (const uint8_t *)warning, length, NULL);
     }
+
+    return true;
+}
+
+static bool command_limit(Tox *tox, IRC *UNUSED(irc), uint32_t fid, char *arg){
+    if (!tox_is_friend_master(tox, fid)){
+        return false;
+    }
+
+    long new_limit = atol(arg);
+    if (new_limit == -1) {
+        new_limit = UINT32_MAX;
+    }
+
+    settings.channel_limit = new_limit;
 
     return true;
 }

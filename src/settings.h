@@ -39,6 +39,7 @@ struct Settings {
     char default_channel[IRC_MAX_CHANNEL_LENGTH];
     bool verbose;
     struct special_characters characters[CHAR_MAX];
+    uint32_t channel_limit;
 };
 
 typedef struct Settings SETTINGS;
