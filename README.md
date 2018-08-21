@@ -1,6 +1,14 @@
 # toxirc
 Tox to IRC bridge with support for multiple channels
 
+## Features
+
+* Mutliple IRC channels
+* Commands
+* Custom prefixes
+* Registered IRC accounts
+* Human readable settings file (INI)
+
 ## Dependencies
 
 * Toxcore
