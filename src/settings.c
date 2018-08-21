@@ -148,7 +148,6 @@ static void parse_irc_section(const char *key, const char *value) {
             DEBUG("Settings", "WARNING: PASSWORD TOO LONG.");
         }
         memcpy(settings.password, value, length);
-        printf("password: %s\n", settings.password);
     }
 }
 
