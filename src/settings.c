@@ -165,6 +165,7 @@ static int settings_parser(const char *section, const char *key, const char *val
             parse_irc_section(key, value);
             break;
         case SECTION_UNKNOWN:
+            DEBUG("Settings", "Trying to parse unkown section: %d", sec);
             break;
         default:
             break;
