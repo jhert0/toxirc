@@ -7,6 +7,7 @@
 
 #define IRC_MAX_CHANNEL_LENGTH 50
 #define IRC_PORT_LENGTH 5
+#define IRC_MAX_PASSWORD_LENGTH 50
 
 struct channel {
     char name[IRC_MAX_CHANNEL_LENGTH];
@@ -20,6 +21,8 @@ struct irc {
     char *server;
     char *port;
     bool connected;
+
+    char *nick;
 
     //Channel data
     struct channel *channels;
@@ -48,7 +51,7 @@ IRC *irc_init(char *server, char *port);
  * returns true on success
  * returns false on failure
  */
-bool irc_connect(IRC *irc);
+bool irc_connect(IRC *irc, char *username, char *password);
 
 /*
  * Reconnects to the IRC server

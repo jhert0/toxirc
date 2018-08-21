@@ -29,17 +29,23 @@ struct special_characters {
 };
 
 struct Settings {
+    //Bot
     char name[TOX_MAX_NAME_LENGTH];
+    char master[TOX_ADDRESS_SIZE * 2];
+    bool verbose;
+    struct special_characters characters[CHAR_MAX];
+
+    //Tox
     char status[TOX_MAX_STATUS_MESSAGE_LENGTH];
     bool ipv6;
     bool udp;
-    char master[TOX_ADDRESS_SIZE * 2];
+
+    //IRC
     char server[NI_MAXHOST];
     char port[IRC_PORT_LENGTH];
     char default_channel[IRC_MAX_CHANNEL_LENGTH];
-    bool verbose;
-    struct special_characters characters[CHAR_MAX];
     uint32_t channel_limit;
+    char password[IRC_MAX_PASSWORD_LENGTH];
 };
 
 typedef struct Settings SETTINGS;

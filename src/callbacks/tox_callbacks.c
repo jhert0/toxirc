@@ -69,9 +69,9 @@ static void group_message_callback(Tox *tox, uint32_t groupnumber,
 
     IRC *irc = userdata;
 
-    if (strncmp((char *)message, settings.characters[CHAR_NO_SYNC_PREFIX].prefix, strlen(settings.characters[CHAR_NO_SYNC_PREFIX].prefix)) == 0){ //messages beggining with ~ are not synced with irc
+    if (command_prefix_cmp((char *)message, settings.characters[CHAR_NO_SYNC_PREFIX].prefix)){ //messages beggining with ~ are not synced with irc
         return;
-    } else if (strncmp((char *)message, settings.characters[CHAR_CMD_PREFIX].prefix, strlen(settings.characters[CHAR_CMD_PREFIX].prefix)) == 0) {
+    } else if (command_prefix_cmp((char *)message, settings.characters[CHAR_CMD_PREFIX].prefix)) {
         char msg[TOX_MAX_MESSAGE_LENGTH];
         length = MIN(TOX_MAX_MESSAGE_LENGTH - 1, length);
         memcpy(msg, message, length);

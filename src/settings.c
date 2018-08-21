@@ -45,6 +45,7 @@ SETTINGS settings = {
         { "~", "Prevents the message from being synced." },
     },
     .channel_limit = UINT32_MAX,
+    .password = "",
 };
 
 static void settings_write_string(const char *file, const char *section, const char *key, const char *value){
@@ -84,6 +85,7 @@ void settings_save(char *file){
     //IRC
     settings_write_string(file, sections[SECTION_IRC], "server", settings.server);
     settings_write_string(file, sections[SECTION_IRC], "port", settings.port);
+    settings_write_string(file, sections[SECTION_IRC], "password", settings.password);
 }
 
 static SECTION get_section(const char *section){
@@ -139,6 +141,14 @@ static void parse_irc_section(const char *key, const char *value) {
         strcpy(settings.server, value);
     } else if (strcmp(key, "port") == 0) {
         strcpy(settings.port, value);
+    } else if (strcmp(key, "password") == 0) {
+        size_t length = strlen(value);
+        if (length > IRC_MAX_PASSWORD_LENGTH) {
+            length = IRC_MAX_PASSWORD_LENGTH;
+            DEBUG("Settings", "WARNING: PASSWORD TOO LONG.");
+        }
+        memcpy(settings.password, value, length);
+        printf("password: %s\n", settings.password);
     }
 }
 

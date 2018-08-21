@@ -21,9 +21,9 @@ static void message_callback(IRC *irc, char *buffer, void *arg){
         return;
     }
 
-    if (strncmp(msg, settings.characters[CHAR_NO_SYNC_PREFIX].prefix, strlen(settings.characters[CHAR_NO_SYNC_PREFIX].prefix)) == 0) { //dont sync messages that begin with ~
+    if (command_prefix_cmp(msg, settings.characters[CHAR_NO_SYNC_PREFIX].prefix)) { //dont sync messages that begin with ~
         return;
-    } else if (strncmp(msg, settings.characters[CHAR_CMD_PREFIX].prefix, strlen(settings.characters[CHAR_CMD_PREFIX].prefix)) == 0) {
+    } else if (command_prefix_cmp(msg, settings.characters[CHAR_CMD_PREFIX].prefix)) {
         size_t msg_length = strlen(msg);
 
         size_t cmd_length;
@@ -35,12 +35,10 @@ static void message_callback(IRC *irc, char *buffer, void *arg){
         size_t arg_length;
         char *arg = command_parse_arg(msg, msg_length, cmd_length, &arg_length);
 
-        bool valid = false;
         for (int i = 0; irc_commands[i].cmd; i++) {
             if (strncmp(cmd, irc_commands[i].cmd, strlen(irc_commands[i].cmd)) == 0) {
                 const uint32_t channel_index = irc_get_channel_index(irc, channel);
                 irc_commands[i].func(tox, irc, channel_index, NULL);
-                valid = true;
             }
         }
 
@@ -48,12 +46,6 @@ static void message_callback(IRC *irc, char *buffer, void *arg){
         if (arg) {
             free(arg);
         }
-
-        /*
-        if (!valid) {
-            irc_message(irc, channel, "Invalid command.");
-        }
-        */
 
         return; //dont sync commands
     }

@@ -44,7 +44,7 @@ int main(void){
         return 2;
     }
 
-    if (!irc_connect(irc)) {
+    if (!irc_connect(irc, settings.name, settings.password)) {
         irc_free(irc);
         tox_kill(tox);
         return 3;

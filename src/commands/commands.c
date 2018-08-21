@@ -53,3 +53,8 @@ char *command_parse_arg(char *msg, size_t msg_length, size_t cmd_length, size_t 
 
     return arg;
 }
+
+
+bool command_prefix_cmp(char *line, char *prefix) {
+    return strncmp(line, prefix, strlen(prefix)) == 0;
+}

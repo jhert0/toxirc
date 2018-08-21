@@ -32,7 +32,7 @@ IRC *irc_init(char *server, char *port){
     return irc;
 }
 
-bool irc_connect(IRC *irc){
+bool irc_connect(IRC *irc, char *username, char *password){
     DEBUG("IRC", "Connecting to %s:%s", irc->server, irc->port);
 
     struct addrinfo hints;
@@ -65,11 +65,18 @@ bool irc_connect(IRC *irc){
 
     freeaddrinfo(result);
 
-    network_send(irc->sock, "PASS none\n", sizeof("PASS none\n") - 1);
-    network_send_fmt(irc->sock, "NICK %s\n", settings.name);
-    network_send_fmt(irc->sock, "USER %s %s %s :%s\n", settings.name, settings.name, settings.name, settings.name);
+    network_send_fmt(irc->sock, "PASS %s\n", password);
+    network_send_fmt(irc->sock, "NICK %s\n", username);
+    network_send_fmt(irc->sock, "USER %s %s %s :%s\n", username, username, username, username);
 
     irc->connected = true;
+    if (!irc->nick) {
+        irc->nick = malloc(strlen(username));
+        if (!irc->nick) {
+            return false;
+        }
+        memcpy(irc->nick, username, strlen(username));
+    }
 
     DEBUG("IRC", "Connected to %s", irc->server);
 
@@ -81,7 +88,7 @@ bool irc_reconnect(IRC *irc){
         irc_disconnect(irc);
     }
 
-    if (!irc_connect(irc)) {
+    if (!irc_connect(irc, irc->nick, settings.password)) {
         return false;
     }
 
@@ -171,6 +178,10 @@ void irc_free(IRC *irc){
 
     if (irc->channels) {
         free(irc->channels);
+    }
+
+    if (irc->nick) {
+        free(irc->nick);
     }
 
     free(irc);

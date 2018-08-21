@@ -23,4 +23,6 @@ char *command_parse(char *msg, size_t msg_length, size_t *cmd_length);
 
 char *command_parse_arg(char *msg, size_t msg_length, size_t cmd_length, size_t *arg_length);
 
+bool command_prefix_cmp(char *line, char *prefix);
+
 #endif
