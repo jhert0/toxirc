@@ -31,7 +31,7 @@ struct special_characters {
 struct Settings {
     //Bot
     char name[TOX_MAX_NAME_LENGTH];
-    char master[TOX_ADDRESS_SIZE * 2];
+    char master[(TOX_ADDRESS_SIZE * 2) + 1];
     bool verbose;
     struct special_characters characters[CHAR_MAX];
 
