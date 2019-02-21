@@ -18,8 +18,8 @@ struct Command irc_commands[MAX_CMDS] = {
     { "users",      " Retrieve the users in the tox groupchat",                            false, command_users      },
     { "topic",      "Gets the topic for the groupchat this channel is being synced with.", false, command_topic      },
     { "characters", "Gives information about all the special characters",                  false, command_characters },
-    { "help",  "This message.",                                                            false, command_help       },
-    { NULL,     NULL,                                                                      false, NULL               },
+    { "help",       "This message.",                                                       false, command_help       },
+    { NULL,         NULL,                                                                  false, NULL               },
 };
 
 static bool command_users(Tox *tox, IRC *irc, uint32_t index, char *UNUSED(arg)){

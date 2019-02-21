@@ -17,11 +17,11 @@ static bool command_help(Tox *tox, IRC *irc, uint32_t group_num, char *arg);
 
 struct Command group_commands[MAX_CMDS] = {
     //{ "user",    "Gets all the users in the linked IRC channel.",                       false, command_users   },
-    { "channel", "Gets the channel this groupchat is being synced with.",                false, command_channel    },
     //{ "topic",   "Gets the topic for the channel this groupchat is being synced with.", false, command_topic   },
-    { "characters", "Gives information about all the special characters.",               false, command_characters },
-    { "help",    "This command.",                                                        false, command_help       },
-    { NULL,       NULL,                                                                  false, NULL               },
+    { "channel",    "Gets the channel this groupchat is being synced with.",              false, command_channel    },
+    { "characters", "Gives information about all the special characters.",                false, command_characters },
+    { "help",       "This command.",                                                      false, command_help       },
+    { NULL,         NULL,                                                                 false, NULL               },
 };
 
 #if 0
