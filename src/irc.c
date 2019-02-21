@@ -272,22 +272,32 @@ void irc_loop(IRC *irc, void *userdata){
             }
 
             network_send(irc->sock, (char *)data, i);
+            irc->last_ping = time(NULL);
         } else if (strncmp((char *)data, "ERROR", 4) == 0) {
-            DEBUG("main", "Disconnected from the irc server reconnecting...");
+            DEBUG("IRC", "Disconnected from the irc server reconnecting...");
             if (!irc_reconnect(irc)) {
-                DEBUG("main", "Unable to reconnect. Dying...");
+                DEBUG("IRC", "Unable to reconnect. Dying...");
                 return;
             }
         } else if (data[0] == ':') {
             irc->message_callback(irc, (char *)data, userdata);
         }
 
+        const time_t ping_time = time(NULL) - irc->last_ping;
+        if (ping_time >= IRC_TIMEOUT) {
+            DEBUG("IRC", "Last ping received %lu seconds ago. Reconnecting...");
+            if (irc_reconnect(irc)) {
+                DEBUG("IRC", "Unable to reconnect. Dying...");
+                return;
+            }
+        }
+
         int error = 0;
         socklen_t len = sizeof(error);
         if (irc->sock < 0 || getsockopt(irc->sock, SOL_SOCKET, SO_ERROR, &error, &len) != 0) {
-            DEBUG("main", "Socket has gone bad. Error: %d. Reconnecting...", error);
+            DEBUG("IRC", "Socket has gone bad. Error: %d. Reconnecting...", error);
             if (irc_reconnect(irc)) {
-                DEBUG("main", "Unable to reconnect. Dying...");
+                DEBUG("IRC", "Unable to reconnect. Dying...");
                 return;
             }
         }
