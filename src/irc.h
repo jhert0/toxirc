@@ -4,9 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include <time.h>
 
-#define IRC_TIMEOUT 300 //300 seconds or 5 minutes
 #define IRC_MAX_CHANNEL_LENGTH 50
 #define IRC_PORT_LENGTH 5
 #define IRC_MAX_PASSWORD_LENGTH 50
@@ -23,9 +21,7 @@ struct irc {
     char *server;
     char *port;
     bool connected;
-    time_t last_ping;
 
-    //user info
     char *nick;
 
     //Channel data
