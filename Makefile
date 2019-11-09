@@ -31,4 +31,8 @@ install: all
 	@echo "Installing binary..."
 	install -m 0755 $(EXECUTABLE) $(PREFIX)/bin/$(EXECUTABLE)
 
+deps:
+	@git submodule init
+	@git submodule update
+
 .PHONY: all clean
