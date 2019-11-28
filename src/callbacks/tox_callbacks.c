@@ -16,7 +16,7 @@
 #include <tox/tox.h>
 
 static void friend_message_callback(Tox *tox, uint32_t fid, TOX_MESSAGE_TYPE type, const uint8_t *message,
-                                    size_t length, void *userdata){
+                                    size_t length, void *userdata) {
     if (type != TOX_MESSAGE_TYPE_NORMAL) {
         return;
     }
@@ -59,9 +59,8 @@ static void friend_message_callback(Tox *tox, uint32_t fid, TOX_MESSAGE_TYPE typ
     }
 }
 
-static void group_message_callback(Tox *tox, uint32_t groupnumber,
-                                   uint32_t peer_number, TOX_MESSAGE_TYPE UNUSED(type),
-                                   const uint8_t *message, size_t length, void *userdata){
+static void group_message_callback(Tox *tox, uint32_t groupnumber, uint32_t peer_number, TOX_MESSAGE_TYPE UNUSED(type),
+                                   const uint8_t *message, size_t length, void *userdata) {
 
     if (tox_conference_peer_number_is_ours(tox, groupnumber, peer_number, NULL)) {
         return;
@@ -69,7 +68,9 @@ static void group_message_callback(Tox *tox, uint32_t groupnumber,
 
     IRC *irc = userdata;
 
-    if (command_prefix_cmp((char *)message, settings.characters[CHAR_NO_SYNC_PREFIX].prefix)){ //messages beggining with ~ are not synced with irc
+    if (command_prefix_cmp(
+            (char *)message,
+            settings.characters[CHAR_NO_SYNC_PREFIX].prefix)) { // messages beggining with ~ are not synced with irc
         return;
     } else if (command_prefix_cmp((char *)message, settings.characters[CHAR_CMD_PREFIX].prefix)) {
         char msg[TOX_MAX_MESSAGE_LENGTH];
@@ -104,7 +105,8 @@ static void group_message_callback(Tox *tox, uint32_t groupnumber,
         if (!valid) {
             tox_conference_send_message(tox, groupnumber, TOX_MESSAGE_TYPE_NORMAL,
                                         (uint8_t *)"Invalid command send me help to find out what commands I support",
-                                        sizeof("Invalid command send me help to find out what commands I support") - 1, NULL);
+                                        sizeof("Invalid command send me help to find out what commands I support") - 1,
+                                        NULL);
         }
 
         return;
@@ -136,7 +138,7 @@ static void group_message_callback(Tox *tox, uint32_t groupnumber,
 }
 
 static void friend_request_callback(Tox *tox, const uint8_t *public_key, const uint8_t *UNUSED(data),
-                                    size_t UNUSED(length), void *UNUSED(userdata)){
+                                    size_t UNUSED(length), void *UNUSED(userdata)) {
     TOX_ERR_FRIEND_ADD err;
     tox_friend_add_norequest(tox, public_key, &err);
 
@@ -162,7 +164,7 @@ static void self_connection_change_callback(Tox *UNUSED(tox), TOX_CONNECTION sta
     }
 }
 
-void tox_callbacks_setup(Tox *tox){
+void tox_callbacks_setup(Tox *tox) {
     tox_callback_self_connection_status(tox, &self_connection_change_callback);
     tox_callback_friend_message(tox, &friend_message_callback);
     tox_callback_friend_request(tox, &friend_request_callback);

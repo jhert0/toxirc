@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-void debug(const char *fmt, ...){
+void debug(const char *fmt, ...) {
     if (!settings.verbose) {
         return;
     }

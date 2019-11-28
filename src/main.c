@@ -19,12 +19,12 @@
 
 bool exit_bot = false;
 
-static void signal_catch(int UNUSED(sig)){
+static void signal_catch(int UNUSED(sig)) {
     exit_bot = true;
     printf("signal caught\n");
 }
 
-int main(void){
+int main(void) {
     signal(SIGINT, signal_catch);
 
     if (!settings_load(SETTINGS_FILE)) {
@@ -62,7 +62,8 @@ int main(void){
         return 4;
     }
 
-    tox_conference_set_title(tox, group_num, (const uint8_t *)settings.default_channel, strlen(settings.default_channel), NULL);
+    tox_conference_set_title(tox, group_num, (const uint8_t *)settings.default_channel,
+                             strlen(settings.default_channel), NULL);
     irc_join_channel(irc, settings.default_channel, group_num);
 
     while (!exit_bot) {

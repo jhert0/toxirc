@@ -10,19 +10,19 @@
 #include <string.h>
 #include <tox/tox.h>
 
-char *command_parse(char *msg, size_t msg_length, size_t *cmd_length){
-    char *cmd = NULL;
+char *command_parse(char *msg, size_t msg_length, size_t *cmd_length) {
+    char *cmd   = NULL;
     *cmd_length = 0;
 
     size_t prefix_length = strlen(settings.characters[CHAR_CMD_PREFIX].prefix);
-    if (strncmp(msg, settings.characters[CHAR_CMD_PREFIX].prefix, prefix_length) == 0){
-        msg += prefix_length; //get rid of the command prefix
+    if (strncmp(msg, settings.characters[CHAR_CMD_PREFIX].prefix, prefix_length) == 0) {
+        msg += prefix_length; // get rid of the command prefix
     }
 
     for (size_t i = 0; i < msg_length; i++) {
         if (msg[i] == ' ' || msg[i] == '\0') {
             *cmd_length = i;
-            cmd = malloc(*cmd_length);
+            cmd         = malloc(*cmd_length);
             memcpy(cmd, msg, *cmd_length);
             break;
         }
@@ -31,10 +31,10 @@ char *command_parse(char *msg, size_t msg_length, size_t *cmd_length){
     return cmd;
 }
 
-char *command_parse_arg(char *msg, size_t msg_length, size_t cmd_length, size_t *arg_length){
+char *command_parse_arg(char *msg, size_t msg_length, size_t cmd_length, size_t *arg_length) {
     *arg_length = 0;
 
-    if ((msg_length - 1) == cmd_length) { //no arguments
+    if ((msg_length - 1) == cmd_length) { // no arguments
         return NULL;
     }
 
@@ -45,7 +45,7 @@ char *command_parse_arg(char *msg, size_t msg_length, size_t cmd_length, size_t 
 
     for (size_t i = cmd_length + 1; i < msg_length; i++) {
         if (msg[i] == ' ' || msg[i] == '\0') {
-            *arg_length  = i - cmd_length - 1;
+            *arg_length      = i - cmd_length - 1;
             arg[*arg_length] = '\0';
             break;
         }
@@ -53,7 +53,6 @@ char *command_parse_arg(char *msg, size_t msg_length, size_t cmd_length, size_t 
 
     return arg;
 }
-
 
 bool command_prefix_cmp(char *line, char *prefix) {
     return strncmp(line, prefix, strlen(prefix)) == 0;

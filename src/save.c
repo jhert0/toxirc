@@ -12,7 +12,7 @@
 
 #include <tox/tox.h>
 
-bool save_write(Tox *tox, char *path){
+bool save_write(Tox *tox, char *path) {
     FILE *fp = fopen(path, "wb");
     if (!fp) {
         DEBUG("Save", "Can not open: %s", path);
@@ -41,7 +41,7 @@ bool save_write(Tox *tox, char *path){
     return true;
 }
 
-Tox *save_load(char *path, int *status){
+Tox *save_load(char *path, int *status) {
     Tox *tox = NULL;
     struct Tox_Options options;
 
@@ -51,7 +51,8 @@ Tox *save_load(char *path, int *status){
     tox_options_set_udp_enabled(&options, settings.udp);
     tox_options_set_ipv6_enabled(&options, settings.ipv6);
 
-    int fd = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); //TODO: this needs to be improved
+    int fd = open(path, O_RDWR | O_CREAT,
+                  S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); // TODO: this needs to be improved
     FILE *fp = fdopen(fd, "rb");
     if (!fp) {
         DEBUG("Save", "Could not open %s", path);

@@ -12,7 +12,7 @@
 
 #include <tox/tox.h>
 
-static void message_callback(IRC *irc, char *buffer, void *arg){
+static void message_callback(IRC *irc, char *buffer, void *arg) {
     Tox *tox = arg;
 
     char nick[32], user[32], server[100], channel[IRC_MAX_CHANNEL_LENGTH], msg[256];
@@ -21,7 +21,8 @@ static void message_callback(IRC *irc, char *buffer, void *arg){
         return;
     }
 
-    if (command_prefix_cmp(msg, settings.characters[CHAR_NO_SYNC_PREFIX].prefix)) { //dont sync messages that begin with ~
+    if (command_prefix_cmp(msg,
+                           settings.characters[CHAR_NO_SYNC_PREFIX].prefix)) { // dont sync messages that begin with ~
         return;
     } else if (command_prefix_cmp(msg, settings.characters[CHAR_CMD_PREFIX].prefix)) {
         size_t msg_length = strlen(msg);
@@ -47,7 +48,7 @@ static void message_callback(IRC *irc, char *buffer, void *arg){
             free(arg);
         }
 
-        return; //dont sync commands
+        return; // dont sync commands
     }
 
     uint32_t group = irc_get_channel_group(irc, channel);
@@ -58,6 +59,6 @@ static void message_callback(IRC *irc, char *buffer, void *arg){
     tox_group_send_msg(tox, group, nick, msg);
 }
 
-void irc_callbacks_setup(IRC *irc){
+void irc_callbacks_setup(IRC *irc) {
     irc_set_message_callback(irc, message_callback);
 }

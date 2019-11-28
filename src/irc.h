@@ -24,12 +24,12 @@ struct irc {
 
     char *nick;
 
-    //Channel data
+    // Channel data
     struct channel *channels;
     uint32_t num_channels;
     uint32_t size_channels;
 
-    //Callbacks
+    // Callbacks
     void (*join_callback)(struct irc *irc, char *channel, void *userdata);
     void (*leave_callback)(struct irc *irc, char *channel, void *userdata);
     void (*list_callback)(struct irc *irc, char *channel, void *userdata);
@@ -96,7 +96,8 @@ int irc_message(IRC *irc, char *channel, char *msg);
 
 /*
  * Frees the IRC struct and irc->channels.
- * If the connection hasn't been closed it will also disconnect from the IRC server
+ * If the connection hasn't been closed it will also disconnect from the IRC
+ * server
  */
 void irc_free(IRC *irc);
 
@@ -142,6 +143,6 @@ void irc_set_join_callback(IRC *irc, void (*func)(IRC *irc, char *channel, void 
 
 void irc_set_leave_callback(IRC *irc, void (*func)(IRC *irc, char *channel, void *userdata));
 
-void irc_set_list_callback(IRC *irc, void(*func)(IRC *irc, char *channel, void *userdata));
+void irc_set_list_callback(IRC *irc, void (*func)(IRC *irc, char *channel, void *userdata));
 
 #endif

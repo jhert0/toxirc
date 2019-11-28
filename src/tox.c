@@ -14,7 +14,7 @@
 
 #include <tox/tox.h>
 
-Tox *tox_init(){
+Tox *tox_init() {
     int status;
     Tox *tox = save_load(SAVE_FILE, &status);
 
@@ -49,12 +49,12 @@ Tox *tox_init(){
     return tox;
 }
 
-bool tox_connect(Tox *tox){
+bool tox_connect(Tox *tox) {
     for (int i = 0; nodes[i].ip; i++) {
         uint8_t *key = hex_string_to_bin(nodes[i].key);
         if (!key) {
             DEBUG("Tox", "Could not allocate memory for key.");
-            return false; //Return because it will most likely fail again
+            return false; // Return because it will most likely fail again
         }
 
         tox_bootstrap(tox, nodes[i].ip, nodes[i].udp_port, key, NULL);
@@ -67,13 +67,13 @@ bool tox_connect(Tox *tox){
     return true;
 }
 
-void tox_group_send_msg(Tox *tox, uint32_t group_num, char *nick, char *msg){
+void tox_group_send_msg(Tox *tox, uint32_t group_num, char *nick, char *msg) {
     char message[TOX_MAX_MESSAGE_LENGTH];
     size_t length = snprintf(message, sizeof(message), "<%s> %s", nick, msg);
     tox_conference_send_message(tox, group_num, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)message, length, NULL);
 }
 
-bool tox_is_friend_master(Tox *tox, uint32_t fid){
+bool tox_is_friend_master(Tox *tox, uint32_t fid) {
     uint8_t public_key_bin[TOX_ADDRESS_SIZE];
     if (tox_friend_get_public_key(tox, fid, public_key_bin, NULL) == 0) {
         return false;

@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-uint8_t *hex_string_to_bin(const char *hex_string){
+uint8_t *hex_string_to_bin(const char *hex_string) {
     size_t i, len = strlen(hex_string) / 2;
     uint8_t *ret = (uint8_t *)malloc(len);
     if (!ret) {
@@ -20,7 +20,7 @@ uint8_t *hex_string_to_bin(const char *hex_string){
     return ret;
 }
 
-off_t get_file_size(char *file){
+off_t get_file_size(char *file) {
     off_t size = 0;
 
     FILE *fp = fopen(file, "r");

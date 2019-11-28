@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-int network_send(int sock, char *msg, int len){
+int network_send(int sock, char *msg, int len) {
     if (sock < 0) {
         DEBUG("IRC", "Bad socket. Unable to send data.");
         return -1;
@@ -28,7 +28,7 @@ int network_send(int sock, char *msg, int len){
     return sent;
 }
 
-int network_send_fmt(int sock, char *fmt, ...){
+int network_send_fmt(int sock, char *fmt, ...) {
     char buf[512];
     va_list list;
     int len, sent;

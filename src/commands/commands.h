@@ -13,8 +13,9 @@
 struct Command {
     char *cmd;
     char *desc;
-    bool master;
-    bool (*func)(Tox *tox, IRC *irc, uint32_t index, char *arg); //index is either the friend number, group number, or channel index
+    bool  master;
+    // index is either the friend number, group number, or channel inde    x
+    bool (*func)(Tox *tox, IRC *irc, uint32_t index, char *arg);
 };
 
 typedef struct Command Command;

@@ -17,7 +17,7 @@
 #include <netdb.h>
 #include <unistd.h>
 
-IRC *irc_init(char *server, char *port){
+IRC *irc_init(char *server, char *port) {
     IRC *irc = malloc(sizeof(IRC));
     if (!irc) {
         DEBUG("IRC", "Could not allocate memory for irc structure.");
@@ -32,7 +32,7 @@ IRC *irc_init(char *server, char *port){
     return irc;
 }
 
-bool irc_connect(IRC *irc, char *username, char *password){
+bool irc_connect(IRC *irc, char *username, char *password) {
     DEBUG("IRC", "Connecting to %s:%s", irc->server, irc->port);
 
     struct addrinfo hints;
@@ -83,7 +83,7 @@ bool irc_connect(IRC *irc, char *username, char *password){
     return true;
 }
 
-bool irc_reconnect(IRC *irc){
+bool irc_reconnect(IRC *irc) {
     if (irc->connected) {
         irc_disconnect(irc);
     }
@@ -99,7 +99,7 @@ bool irc_reconnect(IRC *irc){
     return true;
 }
 
-bool irc_join_channel(IRC *irc, char *channel, uint32_t group_num){
+bool irc_join_channel(IRC *irc, char *channel, uint32_t group_num) {
     if (group_num >= irc->size_channels) {
         DEBUG("IRC", "Reallocating from %d to %d", irc->size_channels, group_num + 1);
         void *temp = realloc(irc->channels, sizeof(Channel) * (group_num + 1));
@@ -134,12 +134,12 @@ bool irc_join_channel(IRC *irc, char *channel, uint32_t group_num){
     return true;
 }
 
-void irc_rejoin_channel(IRC *irc, uint32_t index){
+void irc_rejoin_channel(IRC *irc, uint32_t index) {
     irc->channels[index].in_channel = true;
     network_send_fmt(irc->sock, "JOIN %s\n", irc->channels[index].name);
 }
 
-bool irc_leave_channel(IRC *irc, uint32_t index){
+bool irc_leave_channel(IRC *irc, uint32_t index) {
     network_send_fmt(irc->sock, "PART %s\n", irc->channels[index].name);
 
     memset(&irc->channels[index], 0, sizeof(Channel));
@@ -149,7 +149,7 @@ bool irc_leave_channel(IRC *irc, uint32_t index){
     return true;
 }
 
-void irc_disconnect(IRC *irc){
+void irc_disconnect(IRC *irc) {
     network_send(irc->sock, "QUIT\n", sizeof("QUIT\n") - 1);
     irc->connected = false;
     close(irc->sock);
@@ -159,7 +159,7 @@ void irc_disconnect(IRC *irc){
     DEBUG("IRC", "Disconnected from server: %s.", irc->server);
 }
 
-void irc_leave_all_channels(IRC *irc){
+void irc_leave_all_channels(IRC *irc) {
     for (uint32_t i = 0; i < irc->num_channels; i++) {
         if (irc->channels[i].in_channel) {
             irc_leave_channel(irc, i);
@@ -167,7 +167,7 @@ void irc_leave_all_channels(IRC *irc){
     }
 }
 
-void irc_free(IRC *irc){
+void irc_free(IRC *irc) {
     if (!irc) {
         return;
     }
@@ -189,11 +189,11 @@ void irc_free(IRC *irc){
     irc = NULL;
 }
 
-int irc_message(IRC *irc, char *channel, char *msg){
+int irc_message(IRC *irc, char *channel, char *msg) {
     return network_send_fmt(irc->sock, "PRIVMSG %s :%s\n", channel, msg);
 }
 
-uint32_t irc_get_channel_index(const IRC *irc, const char *channel){
+uint32_t irc_get_channel_index(const IRC *irc, const char *channel) {
     for (uint32_t i = 0; i < irc->num_channels; i++) {
         if (strcmp(channel, irc->channels[i].name) == 0) {
             return i;
@@ -203,7 +203,7 @@ uint32_t irc_get_channel_index(const IRC *irc, const char *channel){
     return UINT32_MAX;
 }
 
-uint32_t irc_get_channel_group(const IRC *irc, const char *channel){
+uint32_t irc_get_channel_group(const IRC *irc, const char *channel) {
     for (uint32_t i = 0; i < irc->num_channels; i++) {
         if (strcmp(channel, irc->channels[i].name) == 0) {
             return i;
@@ -213,7 +213,7 @@ uint32_t irc_get_channel_group(const IRC *irc, const char *channel){
     return UINT32_MAX;
 }
 
-char *irc_get_channel_by_group(const IRC *irc, uint32_t group_num){
+char *irc_get_channel_by_group(const IRC *irc, uint32_t group_num) {
     for (uint32_t i = 0; i < irc->num_channels; i++) {
         if (irc->channels[i].group_num == group_num) {
             return irc->channels[i].name;
@@ -223,7 +223,7 @@ char *irc_get_channel_by_group(const IRC *irc, uint32_t group_num){
     return NULL;
 }
 
-bool irc_in_channel(const IRC *irc, const char *channel){
+bool irc_in_channel(const IRC *irc, const char *channel) {
     for (uint32_t i = 0; i < irc->num_channels; i++) {
         if (strcmp(irc->channels[i].name, channel) == 0 && irc->channels[i].in_channel) {
             return true;
@@ -233,11 +233,11 @@ bool irc_in_channel(const IRC *irc, const char *channel){
     return false;
 }
 
-int irc_command_list(IRC *irc, const char *channel){
+int irc_command_list(IRC *irc, const char *channel) {
     return network_send_fmt(irc->sock, "LIST %s\n", channel);
 }
 
-int irc_command_topic(IRC *irc, const char *channel, const char *topic){
+int irc_command_topic(IRC *irc, const char *channel, const char *topic) {
     if (topic) {
         return network_send_fmt(irc->sock, "TOPIC %s %s\n", channel, topic);
     }
@@ -245,11 +245,11 @@ int irc_command_topic(IRC *irc, const char *channel, const char *topic){
     return network_send_fmt(irc->sock, "TOPIC %s\n", channel);
 }
 
-int irc_command_names(IRC *irc, const char *channel){
+int irc_command_names(IRC *irc, const char *channel) {
     return network_send_fmt(irc->sock, "NAMES %s\n", channel);
 }
 
-void irc_loop(IRC *irc, void *userdata){
+void irc_loop(IRC *irc, void *userdata) {
     int count = 0;
 
     ioctl(irc->sock, FIONREAD, &count);
@@ -294,18 +294,18 @@ void irc_loop(IRC *irc, void *userdata){
     }
 }
 
-void irc_set_message_callback(IRC *irc, void (*func)(IRC *irc, char *message, void *userdata)){
+void irc_set_message_callback(IRC *irc, void (*func)(IRC *irc, char *message, void *userdata)) {
     irc->message_callback = func;
 }
 
-void irc_set_join_callback(IRC *irc, void (*func)(IRC *irc, char *channel, void *userdata)){
+void irc_set_join_callback(IRC *irc, void (*func)(IRC *irc, char *channel, void *userdata)) {
     irc->join_callback = func;
 }
 
-void irc_set_leave_callback(IRC *irc, void (*func)(IRC *irc, char *channel, void *userdata)){
+void irc_set_leave_callback(IRC *irc, void (*func)(IRC *irc, char *channel, void *userdata)) {
     irc->leave_callback = func;
 }
 
-void irc_set_list_callback(IRC *irc, void (*func)(IRC *irc, char *channel, void *userdata)){
+void irc_set_list_callback(IRC *irc, void (*func)(IRC *irc, char *channel, void *userdata)) {
     irc->list_callback = func;
 }

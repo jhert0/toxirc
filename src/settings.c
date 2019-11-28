@@ -41,25 +41,24 @@ SETTINGS settings = {
     .default_channel = "#toxirc",
     .verbose = true,
     .characters = {
-        { "!", "Command prefix." },
-        { "~", "Prevents the message from being synced." },
+        {"!", "Command prefix."},
+        {"~", "Prevents the message from being synced."},
     },
     .channel_limit = UINT32_MAX,
     .password = "",
 };
 
-static void settings_write_string(const char *file, const char *section, const char *key, const char *value){
+static void settings_write_string(const char *file, const char *section, const char *key, const char *value) {
     if (ini_puts(section, key, value, file) != 1) {
         DEBUG("Settings", "Could not write  %s to %s", value, file);
     }
 }
 
-static void settings_write_bool(const char *file, const char *section, const char *key, bool value){
+static void settings_write_bool(const char *file, const char *section, const char *key, bool value) {
     if (ini_puts(section, key, BOOL_TO_STR(value), file) != 1) {
         DEBUG("Settings", "Could not write %s to %s", BOOL_TO_STR(value), file);
     }
 }
-
 
 static void settings_write_int(const char *file, const char *section, const char *key, long value) {
     if (ini_putl(section, key, value, file) != 1) {
@@ -67,28 +66,29 @@ static void settings_write_int(const char *file, const char *section, const char
     }
 }
 
-void settings_save(char *file){
-    //Bot
+void settings_save(char *file) {
+    // Bot
     settings_write_string(file, sections[SECTION_BOT], "name", settings.name);
     settings_write_string(file, sections[SECTION_BOT], "status", settings.status);
     settings_write_string(file, sections[SECTION_BOT], "master", settings.master);
     settings_write_string(file, sections[SECTION_BOT], "default_channel", settings.default_channel);
     settings_write_bool(file, sections[SECTION_BOT], "verbose", settings.verbose);
     settings_write_string(file, sections[SECTION_BOT], "cmd_prefix", settings.characters[CHAR_CMD_PREFIX].prefix);
-    settings_write_string(file, sections[SECTION_BOT], "dont_sync_prefix", settings.characters[CHAR_NO_SYNC_PREFIX].prefix);
+    settings_write_string(file, sections[SECTION_BOT], "dont_sync_prefix",
+                          settings.characters[CHAR_NO_SYNC_PREFIX].prefix);
     settings_write_int(file, sections[SECTION_BOT], "channel_limit", settings.channel_limit);
 
-    //Tox
+    // Tox
     settings_write_bool(file, sections[SECTION_TOX], "ipv6", settings.ipv6);
     settings_write_bool(file, sections[SECTION_TOX], "udp", settings.udp);
 
-    //IRC
+    // IRC
     settings_write_string(file, sections[SECTION_IRC], "server", settings.server);
     settings_write_string(file, sections[SECTION_IRC], "port", settings.port);
     settings_write_string(file, sections[SECTION_IRC], "password", settings.password);
 }
 
-static SECTION get_section(const char *section){
+static SECTION get_section(const char *section) {
     for (int i = 0; i < SECTION_UNKNOWN; i++) {
         if (strcmp(section, sections[i]) == 0) {
             return i;
@@ -131,7 +131,7 @@ static void parse_bot_section(const char *key, const char *value) {
 static void parse_tox_section(const char *key, const char *value) {
     if (strcmp(key, "ipv6") == 0) {
         settings.ipv6 = STR_TO_BOOL(value);
-    } else if (strcmp(key, "udp") == 0){
+    } else if (strcmp(key, "udp") == 0) {
         settings.udp = STR_TO_BOOL(value);
     }
 }
@@ -174,7 +174,7 @@ static int settings_parser(const char *section, const char *key, const char *val
     return 1;
 }
 
-bool settings_load(char *file){
+bool settings_load(char *file) {
     off_t size = get_file_size(file);
     if (size == 0) {
         return false;
