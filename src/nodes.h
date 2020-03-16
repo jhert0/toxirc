@@ -5,8 +5,8 @@
 #include <stdio.h>
 
 struct Node {
-    char *ip;
-    char *key;
+    char *   ip;
+    char *   key;
     uint16_t udp_port;
     uint16_t tcp_port;
 } nodes[] = {

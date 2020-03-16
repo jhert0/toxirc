@@ -10,24 +10,24 @@
 #define IRC_MAX_PASSWORD_LENGTH 50
 
 struct channel {
-    char name[IRC_MAX_CHANNEL_LENGTH];
-    size_t name_length;
+    char     name[IRC_MAX_CHANNEL_LENGTH];
+    size_t   name_length;
     uint32_t group_num;
-    bool in_channel;
+    bool     in_channel;
 };
 
 struct irc {
-    int sock;
+    int   sock;
     char *server;
     char *port;
-    bool connected;
+    bool  connected;
 
     char *nick;
 
     // Channel data
     struct channel *channels;
-    uint32_t num_channels;
-    uint32_t size_channels;
+    uint32_t        num_channels;
+    uint32_t        size_channels;
 
     // Callbacks
     void (*join_callback)(struct irc *irc, char *channel, void *userdata);
@@ -36,7 +36,7 @@ struct irc {
     void (*message_callback)(struct irc *irc, char *message, void *userdata);
 };
 
-typedef struct irc IRC;
+typedef struct irc     IRC;
 typedef struct channel Channel;
 
 /*

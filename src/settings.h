@@ -24,15 +24,15 @@ enum {
 #define MAX_PREFIX 3
 
 struct special_characters {
-    char prefix[MAX_PREFIX + 1];
+    char  prefix[MAX_PREFIX + 1];
     char *desc;
 };
 
 struct Settings {
     // Bot
-    char name[TOX_MAX_NAME_LENGTH];
-    char master[(TOX_ADDRESS_SIZE * 2) + 1];
-    bool verbose;
+    char                      name[TOX_MAX_NAME_LENGTH];
+    char                      master[(TOX_ADDRESS_SIZE * 2) + 1];
+    bool                      verbose;
     struct special_characters characters[CHAR_MAX];
 
     // Tox
@@ -41,11 +41,11 @@ struct Settings {
     bool udp;
 
     // IRC
-    char server[NI_MAXHOST];
-    char port[IRC_PORT_LENGTH];
-    char default_channel[IRC_MAX_CHANNEL_LENGTH];
+    char     server[NI_MAXHOST];
+    char     port[IRC_PORT_LENGTH];
+    char     default_channel[IRC_MAX_CHANNEL_LENGTH];
     uint32_t channel_limit;
-    char password[IRC_MAX_PASSWORD_LENGTH];
+    char     password[IRC_MAX_PASSWORD_LENGTH];
 };
 
 typedef struct Settings SETTINGS;

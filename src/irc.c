@@ -27,7 +27,7 @@ IRC *irc_init(char *server, char *port) {
     memset(irc, 0, sizeof(IRC));
 
     irc->server = server;
-    irc->port = port;
+    irc->port   = port;
 
     return irc;
 }
@@ -35,13 +35,13 @@ IRC *irc_init(char *server, char *port) {
 bool irc_connect(IRC *irc, char *username, char *password) {
     DEBUG("IRC", "Connecting to %s:%s", irc->server, irc->port);
 
-    struct addrinfo hints;
+    struct addrinfo  hints;
     struct addrinfo *result, *rp;
 
     memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_UNSPEC;
+    hints.ai_family   = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_PASSIVE;
+    hints.ai_flags    = AI_PASSIVE;
     hints.ai_protocol = 0;
 
     int ret = getaddrinfo(irc->server, irc->port, &hints, &result);
@@ -125,8 +125,8 @@ bool irc_join_channel(IRC *irc, char *channel, uint32_t group_num) {
 
     const uint32_t index = irc->num_channels - 1;
     memcpy(irc->channels[index].name, channel, length);
-    irc->channels[index].in_channel = true;
-    irc->channels[index].group_num = group_num;
+    irc->channels[index].in_channel  = true;
+    irc->channels[index].group_num   = group_num;
     irc->channels[index].name_length = length;
 
     DEBUG("IRC", "Joining channel: %s", channel);
@@ -282,8 +282,8 @@ void irc_loop(IRC *irc, void *userdata) {
             irc->message_callback(irc, (char *)data, userdata);
         }
 
-        int error = 0;
-        socklen_t len = sizeof(error);
+        int       error = 0;
+        socklen_t len   = sizeof(error);
         if (irc->sock < 0 || getsockopt(irc->sock, SOL_SOCKET, SO_ERROR, &error, &len) != 0) {
             DEBUG("main", "Socket has gone bad. Error: %d. Reconnecting...", error);
             if (irc_reconnect(irc)) {

@@ -5,7 +5,7 @@
 #include <string.h>
 
 uint8_t *hex_string_to_bin(const char *hex_string) {
-    size_t i, len = strlen(hex_string) / 2;
+    size_t   i, len = strlen(hex_string) / 2;
     uint8_t *ret = (uint8_t *)malloc(len);
     if (!ret) {
         return NULL;

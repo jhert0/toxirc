@@ -45,7 +45,7 @@ struct Command friend_commands[MAX_CMDS] = {
 };
 // clang-format on
 
-static bool command_invite(Tox *tox, IRC *irc, uint32_t fid, char *arg){
+static bool command_invite(Tox *tox, IRC *irc, uint32_t fid, char *arg) {
     uint32_t index;
 
     if (!arg) {

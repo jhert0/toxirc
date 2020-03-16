@@ -24,11 +24,11 @@ struct Command irc_commands[MAX_CMDS] = {
 };
 // clang-format on
 
-static bool command_users(Tox *tox, IRC *irc, uint32_t index, char *UNUSED(arg)){
+static bool command_users(Tox *tox, IRC *irc, uint32_t index, char *UNUSED(arg)) {
     uint32_t group_number = irc->channels[index].group_num;
 
     uint32_t peer_count = tox_conference_peer_count(tox, group_number, NULL);
-    uint8_t names[peer_count][TOX_MAX_MESSAGE_LENGTH];
+    uint8_t  names[peer_count][TOX_MAX_MESSAGE_LENGTH];
 
     size_t names_size = 0;
     size_t name_lens[peer_count];

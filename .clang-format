@@ -37,7 +37,7 @@ BreakStringLiterals: true
 ColumnLimit:     120
 ContinuationIndentWidth: 4
 Cpp11BracedListStyle: false
-DerivePointerAlignment: false
+DerivePointerAlignment: true
 DisableFormat:   false
 IndentCaseLabels: true
 IndentPPDirectives: None

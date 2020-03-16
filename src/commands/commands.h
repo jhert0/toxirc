@@ -14,7 +14,7 @@ struct Command {
     char *cmd;
     char *desc;
     bool  master;
-    // index is either the friend number, group number, or channel inde    x
+    // index is either the friend number, group number, or channel index
     bool (*func)(Tox *tox, IRC *irc, uint32_t index, char *arg);
 };
 

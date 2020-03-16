@@ -16,25 +16,28 @@ static void message_callback(IRC *irc, char *buffer, void *arg) {
     Tox *tox = arg;
 
     char nick[32], user[32], server[100], channel[IRC_MAX_CHANNEL_LENGTH], msg[256];
-    int matches = sscanf(buffer, ":%31[^!]!%31[^@]@%99s PRIVMSG %49s :%255[^\r\n]", nick, user, server, channel, msg);
+    int  matches = sscanf(buffer, ":%31[^!]!%31[^@]@%99s PRIVMSG %49s :%255[^\r\n]", nick, user, server, channel, msg);
     if (matches != 5) {
         return;
     }
 
-    if (command_prefix_cmp(msg,
-                           settings.characters[CHAR_NO_SYNC_PREFIX].prefix)) { // dont sync messages that begin with ~
+    // clang-format off
+    if (command_prefix_cmp(msg, settings.characters[CHAR_NO_SYNC_PREFIX].prefix)) { // dont sync messages that begin with ~
         return;
-    } else if (command_prefix_cmp(msg, settings.characters[CHAR_CMD_PREFIX].prefix)) {
+    }
+    // clang-format on
+
+    if (command_prefix_cmp(msg, settings.characters[CHAR_CMD_PREFIX].prefix)) {
         size_t msg_length = strlen(msg);
 
         size_t cmd_length;
-        char *cmd = command_parse(msg, msg_length, &cmd_length);
+        char * cmd = command_parse(msg, msg_length, &cmd_length);
         if (!cmd) {
             return;
         }
 
         size_t arg_length;
-        char *arg = command_parse_arg(msg, msg_length, cmd_length, &arg_length);
+        char * arg = command_parse_arg(msg, msg_length, cmd_length, &arg_length);
 
         for (int i = 0; irc_commands[i].cmd; i++) {
             if (strncmp(cmd, irc_commands[i].cmd, strlen(irc_commands[i].cmd)) == 0) {

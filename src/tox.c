@@ -15,7 +15,7 @@
 #include <tox/tox.h>
 
 Tox *tox_init() {
-    int status;
+    int  status;
     Tox *tox = save_load(SAVE_FILE, &status);
 
     DEBUG("Tox", "Initialzing tox");
@@ -35,7 +35,7 @@ Tox *tox_init() {
     tox_callbacks_setup(tox);
 
     uint8_t public_key_bin[TOX_ADDRESS_SIZE];
-    char public_key_str[TOX_ADDRESS_SIZE * 2];
+    char    public_key_str[TOX_ADDRESS_SIZE * 2];
     tox_self_get_address(tox, public_key_bin);
     to_hex(public_key_str, public_key_bin, TOX_ADDRESS_SIZE);
     DEBUG("Tox", "ID: %.*s", TOX_ADDRESS_SIZE * 2, public_key_str);
@@ -68,7 +68,7 @@ bool tox_connect(Tox *tox) {
 }
 
 void tox_group_send_msg(Tox *tox, uint32_t group_num, char *nick, char *msg) {
-    char message[TOX_MAX_MESSAGE_LENGTH];
+    char   message[TOX_MAX_MESSAGE_LENGTH];
     size_t length = snprintf(message, sizeof(message), "<%s> %s", nick, msg);
     tox_conference_send_message(tox, group_num, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)message, length, NULL);
 }

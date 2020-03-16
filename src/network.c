@@ -29,9 +29,9 @@ int network_send(int sock, char *msg, int len) {
 }
 
 int network_send_fmt(int sock, char *fmt, ...) {
-    char buf[512];
+    char    buf[512];
     va_list list;
-    int len, sent;
+    int     len, sent;
 
     va_start(list, fmt);
     len = vsnprintf(buf, sizeof(buf), fmt, list);

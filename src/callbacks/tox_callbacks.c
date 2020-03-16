@@ -31,13 +31,13 @@ static void friend_message_callback(Tox *tox, uint32_t fid, TOX_MESSAGE_TYPE typ
     length++;
 
     size_t cmd_length;
-    char *cmd = command_parse(msg, length, &cmd_length);
+    char * cmd = command_parse(msg, length, &cmd_length);
     if (!cmd) {
         return;
     }
 
     size_t arg_length;
-    char *arg = command_parse_arg(msg, length, cmd_length, &arg_length);
+    char * arg = command_parse_arg(msg, length, cmd_length, &arg_length);
 
     bool valid = false;
     for (int i = 0; friend_commands[i].cmd; i++) {
@@ -81,13 +81,13 @@ static void group_message_callback(Tox *tox, uint32_t groupnumber, uint32_t peer
         length++;
 
         size_t cmd_length;
-        char *cmd = command_parse(msg, length, &cmd_length);
+        char * cmd = command_parse(msg, length, &cmd_length);
         if (!cmd) {
             return;
         }
 
         size_t arg_length;
-        char *arg = command_parse_arg(msg, length, cmd_length, &arg_length);
+        char * arg = command_parse_arg(msg, length, cmd_length, &arg_length);
 
         bool valid = false;
         for (int i = 0; group_commands[i].cmd; i++) {
@@ -112,9 +112,9 @@ static void group_message_callback(Tox *tox, uint32_t groupnumber, uint32_t peer
         return;
     }
 
-    uint8_t name[TOX_MAX_NAME_LENGTH];
+    uint8_t                       name[TOX_MAX_NAME_LENGTH];
     TOX_ERR_CONFERENCE_PEER_QUERY err;
-    int name_len = tox_conference_peer_get_name_size(tox, groupnumber, peer_number, &err);
+    int                           name_len = tox_conference_peer_get_name_size(tox, groupnumber, peer_number, &err);
 
     if (name_len == 0 || err != TOX_ERR_CONFERENCE_PEER_QUERY_OK) {
         memcpy(name, "unknown", 7);

@@ -19,7 +19,7 @@ bool save_write(Tox *tox, char *path) {
         return false;
     }
 
-    size_t size = tox_get_savedata_size(tox);
+    size_t   size = tox_get_savedata_size(tox);
     uint8_t *data = calloc(1, size + 1);
     if (!data) {
         DEBUG("Save", "Could not allocate memory for save data.");
@@ -42,7 +42,7 @@ bool save_write(Tox *tox, char *path) {
 }
 
 Tox *save_load(char *path, int *status) {
-    Tox *tox = NULL;
+    Tox *              tox = NULL;
     struct Tox_Options options;
 
     memset(&options, 0, sizeof(struct Tox_Options));
@@ -51,7 +51,7 @@ Tox *save_load(char *path, int *status) {
     tox_options_set_udp_enabled(&options, settings.udp);
     tox_options_set_ipv6_enabled(&options, settings.ipv6);
 
-    int fd = open(path, O_RDWR | O_CREAT,
+    int   fd = open(path, O_RDWR | O_CREAT,
                   S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); // TODO: this needs to be improved
     FILE *fp = fdopen(fd, "rb");
     if (!fp) {
@@ -63,7 +63,7 @@ Tox *save_load(char *path, int *status) {
     if (size == 0) {
         DEBUG("Save", "Could not get the file size for %s. Assuming new profile.", path);
         fclose(fp);
-        tox = tox_new(&options, NULL);
+        tox     = tox_new(&options, NULL);
         *status = 2;
         return tox;
     }
@@ -78,9 +78,9 @@ Tox *save_load(char *path, int *status) {
 
     fclose(fp);
 
-    options.savedata_data = data;
+    options.savedata_data   = data;
     options.savedata_length = size;
-    options.savedata_type = TOX_SAVEDATA_TYPE_TOX_SAVE;
+    options.savedata_type   = TOX_SAVEDATA_TYPE_TOX_SAVE;
 
     TOX_ERR_NEW err;
     tox = tox_new(&options, &err);
