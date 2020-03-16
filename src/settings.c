@@ -104,7 +104,13 @@ static void parse_bot_section(const char *key, const char *value) {
     } else if (strcmp(key, "status") == 0) {
         strcpy(settings.status, value);
     } else if (strcmp(key, "master") == 0) {
-        strcpy(settings.master, value);
+        size_t length = strlen(value);
+        if (length > MASTER_KEY_SIZE) {
+            length = MASTER_KEY_SIZE;
+        }
+
+        strncpy(settings.master, value, length);
+        settings.master[MASTER_KEY_SIZE] = '\0';
     } else if (strcmp(key, "default_channel") == 0) {
         strcpy(settings.default_channel, value);
     } else if (strcmp(key, "verbose") == 0) {

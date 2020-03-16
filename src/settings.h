@@ -28,10 +28,12 @@ struct special_characters {
     char *desc;
 };
 
+#define MASTER_KEY_SIZE (TOX_ADDRESS_SIZE * 2)
+
 struct Settings {
     // Bot
     char                      name[TOX_MAX_NAME_LENGTH];
-    char                      master[(TOX_ADDRESS_SIZE * 2) + 1];
+    char                      master[MASTER_KEY_SIZE + 1];
     bool                      verbose;
     struct special_characters characters[CHAR_MAX];
 
