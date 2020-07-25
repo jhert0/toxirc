@@ -77,11 +77,10 @@ static bool command_topic(Tox *tox, IRC *irc, uint32_t index, char *UNUSED(arg))
 }
 
 static bool command_help(Tox *UNUSED(tox), IRC *irc, uint32_t index, char *UNUSED(arg)) {
+    char *cmd_prefix = settings_get_prefix(CHAR_CMD_PREFIX);
     for (int i = 0; irc_commands[i].cmd; i++) {
-        char message[strlen(settings.characters[CHAR_CMD_PREFIX].prefix) + strlen(irc_commands[i].cmd) +
-                     strlen(irc_commands[i].desc) + 3];
-        sprintf(message, "%s%s: %s", settings.characters[CHAR_CMD_PREFIX].prefix, irc_commands[i].cmd,
-                irc_commands[i].desc);
+        char message[strlen(cmd_prefix) + strlen(irc_commands[i].cmd) + strlen(irc_commands[i].desc) + 3];
+        sprintf(message, "%s%s: %s", cmd_prefix, irc_commands[i].cmd, irc_commands[i].desc);
         irc_message(irc, irc->channels[index].name, message);
     }
 
