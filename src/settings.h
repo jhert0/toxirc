@@ -15,7 +15,7 @@
 
 #include "irc.h"
 
-enum {
+enum prefix_index {
     CHAR_CMD_PREFIX,
     CHAR_NO_SYNC_PREFIX,
     CHAR_MAX,
@@ -28,14 +28,16 @@ struct special_characters {
     char *desc;
 };
 
+typedef struct special_characters SpecialCharacters;
+
 #define MASTER_KEY_SIZE (TOX_ADDRESS_SIZE * 2)
 
 struct Settings {
     // Bot
-    char                      name[TOX_MAX_NAME_LENGTH];
-    char                      master[MASTER_KEY_SIZE + 1];
-    bool                      verbose;
-    struct special_characters characters[CHAR_MAX];
+    char              name[TOX_MAX_NAME_LENGTH];
+    char              master[MASTER_KEY_SIZE + 1];
+    bool              verbose;
+    SpecialCharacters characters[CHAR_MAX];
 
     // Tox
     char status[TOX_MAX_STATUS_MESSAGE_LENGTH];
@@ -57,5 +59,7 @@ extern SETTINGS settings;
 void settings_save(char *file);
 
 bool settings_load(char *file);
+
+char *settings_get_prefix(enum prefix_index index);
 
 #endif

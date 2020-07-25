@@ -22,12 +22,14 @@ static void message_callback(IRC *irc, char *buffer, void *arg) {
     }
 
     // clang-format off
-    if (command_prefix_cmp(msg, settings.characters[CHAR_NO_SYNC_PREFIX].prefix)) { // dont sync messages that begin with ~
+    char *nosync_prefix = settings_get_prefix(CHAR_NO_SYNC_PREFIX);
+    if (command_prefix_cmp(msg, nosync_prefix)) { // dont sync messages that begin with ~
         return;
     }
     // clang-format on
 
-    if (command_prefix_cmp(msg, settings.characters[CHAR_CMD_PREFIX].prefix)) {
+    char *cmd_prefix = settings_get_prefix(CHAR_CMD_PREFIX);
+    if (command_prefix_cmp(msg, cmd_prefix)) {
         size_t msg_length = strlen(msg);
 
         size_t cmd_length;

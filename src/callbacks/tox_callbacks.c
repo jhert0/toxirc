@@ -68,11 +68,14 @@ static void group_message_callback(Tox *tox, uint32_t groupnumber, uint32_t peer
 
     IRC *irc = userdata;
 
-    if (command_prefix_cmp(
-            (char *)message,
-            settings.characters[CHAR_NO_SYNC_PREFIX].prefix)) { // messages beggining with ~ are not synced with irc
+    char *nosync_prefix = settings_get_prefix(CHAR_NO_SYNC_PREFIX);
+    if (command_prefix_cmp((char *)message,
+                           nosync_prefix)) { // messages beggining with ~ are not synced with irc
         return;
-    } else if (command_prefix_cmp((char *)message, settings.characters[CHAR_CMD_PREFIX].prefix)) {
+    }
+
+    char *cmd_prefix = settings_get_prefix(CHAR_CMD_PREFIX);
+    if (command_prefix_cmp((char *)message, cmd_prefix)) {
         char msg[TOX_MAX_MESSAGE_LENGTH];
         length = MIN(TOX_MAX_MESSAGE_LENGTH - 1, length);
         memcpy(msg, message, length);

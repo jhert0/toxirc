@@ -14,8 +14,9 @@ char *command_parse(char *msg, size_t msg_length, size_t *cmd_length) {
     char *cmd   = NULL;
     *cmd_length = 0;
 
-    size_t prefix_length = strlen(settings.characters[CHAR_CMD_PREFIX].prefix);
-    if (strncmp(msg, settings.characters[CHAR_CMD_PREFIX].prefix, prefix_length) == 0) {
+    char * cmd_prefix    = settings_get_prefix(CHAR_CMD_PREFIX);
+    size_t prefix_length = strlen(cmd_prefix);
+    if (strncmp(msg, cmd_prefix, prefix_length) == 0) {
         msg += prefix_length; // get rid of the command prefix
     }
 

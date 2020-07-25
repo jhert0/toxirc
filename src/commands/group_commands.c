@@ -58,10 +58,11 @@ static bool command_topic(Tox *tox, IRC *irc, uint32_t group_num, char *UNUSED(a
 #endif
 
 static bool command_help(Tox *tox, IRC *UNUSED(irc), uint32_t group_num, char *UNUSED(arg)) {
+    char *cmd_prefix = settings_get_prefix(CHAR_CMD_PREFIX);
     for (int i = 0; group_commands[i].cmd; i++) {
         char   message[TOX_MAX_MESSAGE_LENGTH];
-        size_t length = snprintf(message, sizeof(message), "%s%s: %s", settings.characters[CHAR_CMD_PREFIX].prefix,
-                                 group_commands[i].cmd, group_commands[i].desc);
+        size_t length =
+            snprintf(message, sizeof(message), "%s%s: %s", cmd_prefix, group_commands[i].cmd, group_commands[i].desc);
         tox_conference_send_message(tox, group_num, TOX_MESSAGE_TYPE_NORMAL, (const uint8_t *)message, length, NULL);
     }
     return true;

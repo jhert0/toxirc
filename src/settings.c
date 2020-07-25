@@ -193,3 +193,11 @@ bool settings_load(char *file) {
 
     return true;
 }
+
+char *settings_get_prefix(enum prefix_index index) {
+    if (index >= CHAR_MAX) {
+        return NULL;
+    }
+
+    return settings.characters[index].prefix;
+}
