@@ -3,6 +3,6 @@
 
 #include "commands.h"
 
-struct Command group_commands[MAX_CMDS];
+extern struct Command group_commands[MAX_CMDS];
 
 #endif

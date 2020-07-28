@@ -3,6 +3,6 @@
 
 #include "commands.h"
 
-struct Command friend_commands[MAX_CMDS];
+extern struct Command friend_commands[MAX_CMDS];
 
 #endif

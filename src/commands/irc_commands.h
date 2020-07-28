@@ -3,6 +3,6 @@
 
 #include "commands.h"
 
-struct Command irc_commands[MAX_CMDS];
+extern struct Command irc_commands[MAX_CMDS];
 
 #endif
