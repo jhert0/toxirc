@@ -10,7 +10,6 @@ These are features that will be added in at some point:
   * Save/loading channels
   * Multiple IRC servers at once
   * up time command
-  * Registered account support
   * Auto invite
 
 ## Requested Features
