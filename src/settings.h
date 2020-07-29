@@ -56,10 +56,23 @@ typedef struct Settings SETTINGS;
 
 extern SETTINGS settings;
 
+/*
+ * Saves the current settings to the specified file
+ */
 void settings_save(char *file);
 
+/*
+ * Loads the specified settings file
+ * returns true on succes
+ * returns false on failure
+ */
 bool settings_load(char *file);
 
+/*
+ * Gets the prefix at the specified index
+ * returns the prefix if in bounds
+ * returns NULL if out of bounds
+ */
 char *settings_get_prefix(enum prefix_index index);
 
 #endif

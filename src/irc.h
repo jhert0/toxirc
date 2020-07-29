@@ -114,20 +114,26 @@ uint32_t irc_get_channel_group(const IRC *irc, const char *channel);
 
 /*
  * Gets the channel name for the specified group number
- * on success returns the channel name
- * on failure returns NULL
+ * returns the channel name on success
+ * returns NULL on failure
  */
 char *irc_get_channel_by_group(const IRC *irc, uint32_t group_num);
 
 /*
  * Checks if the bot is in the specified irc channel
- * on success returns true
- * on failure returns false
+ * returns true on success
+ * returns false on failure
  */
 bool irc_in_channel(const IRC *irc, const char *channel);
 
+/*
+ *
+ */
 void irc_loop(IRC *irc, void *userdata);
 
+/*
+ * Set the message callback that will be used in irc_loop
+ */
 void irc_set_message_callback(IRC *irc, void (*func)(IRC *irc, char *message, void *userdata));
 
 #endif
