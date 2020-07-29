@@ -52,19 +52,38 @@ int main(void) {
 
     irc_callbacks_setup(irc);
 
-    TOX_ERR_CONFERENCE_NEW err;
-    uint32_t               group_num = tox_conference_new(tox, &err);
-    if (group_num == UINT32_MAX) {
-        DEBUG("main", "Could not create groupchat for default group. Error number: %u", err);
-        tox_kill(tox);
-        irc_disconnect(irc);
-        irc_free(irc);
-        return 4;
-    }
+    uint32_t num_groups = tox_conference_get_chatlist_size(tox);
+    if (num_groups > 0) {
+        uint32_t groups[num_groups];
+        tox_conference_get_chatlist(tox, groups);
 
-    tox_conference_set_title(tox, group_num, (const uint8_t *)settings.default_channel,
-                             strlen(settings.default_channel), NULL);
-    irc_join_channel(irc, settings.default_channel, group_num);
+        for (uint32_t i = 0; i < num_groups; i++) {
+            uint32_t title_size = tox_conference_get_title_size(tox, groups[i], NULL);
+            if (title_size == 0) {
+                continue;
+            }
+
+            uint8_t title[title_size];
+            tox_conference_get_title(tox, groups[i], title, NULL);
+            title[title_size] = '\0';
+
+            irc_join_channel(irc, (char *)title, groups[i]);
+        }
+    } else {
+        TOX_ERR_CONFERENCE_NEW err;
+        uint32_t               group_num = tox_conference_new(tox, &err);
+        if (group_num == UINT32_MAX) {
+            DEBUG("main", "Could not create groupchat for default group. Error number: %u", err);
+            tox_kill(tox);
+            irc_disconnect(irc);
+            irc_free(irc);
+            return 4;
+        }
+
+        tox_conference_set_title(tox, group_num, (const uint8_t *)settings.default_channel,
+                                 strlen(settings.default_channel), NULL);
+        irc_join_channel(irc, settings.default_channel, group_num);
+    }
 
     while (!exit_bot) {
         irc_loop(irc, tox);
