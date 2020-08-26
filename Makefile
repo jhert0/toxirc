@@ -17,7 +17,7 @@ endif
 all: $(SRC) $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJ) $(HEADERS)
-	$(CC) $(LDFLAGS) $(OBJ) -o $(EXECUTABLE)
+	$(CC) $(OBJ) $(LDFLAGS) -o $(EXECUTABLE)
 
 .o:
 	$(CC) $(CFLAGS) -c $< -o $@
