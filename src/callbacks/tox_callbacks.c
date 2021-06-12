@@ -9,9 +9,11 @@
 #include "../commands/group_commands.h"
 #include "../commands/friend_commands.h"
 
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include <tox/tox.h>
 
@@ -74,15 +76,15 @@ static void group_message_callback(Tox *tox, uint32_t groupnumber, uint32_t peer
         return;
     }
 
+    char msg[TOX_MAX_MESSAGE_LENGTH];
+    length = MIN(TOX_MAX_MESSAGE_LENGTH - 1, length);
+    memcpy(msg, message, length);
+    msg[length] = '\0';
+
+    length++;
+
     char *cmd_prefix = settings_get_prefix(CHAR_CMD_PREFIX);
     if (command_prefix_cmp((char *)message, cmd_prefix)) {
-        char msg[TOX_MAX_MESSAGE_LENGTH];
-        length = MIN(TOX_MAX_MESSAGE_LENGTH - 1, length);
-        memcpy(msg, message, length);
-        msg[length] = '\0';
-
-        length++;
-
         size_t cmd_length;
         char * cmd = command_parse(msg, length, &cmd_length);
         if (!cmd) {
@@ -134,10 +136,30 @@ static void group_message_callback(Tox *tox, uint32_t groupnumber, uint32_t peer
         return;
     }
 
-    char buffer[name_len + length + 3];
-    sprintf(buffer, "<%s> %s", name, message);
+    int next_character = 0;
+    for (unsigned int i = 0; i < length; i++) {
+        if (msg[i] == '\n' || msg[i] == '\0') {
+            size_t message_size = i - next_character;
 
-    irc_message(irc, channel, buffer);
+            char message_line[message_size];
+            strncpy(message_line, msg + next_character, message_size);
+            message_line[message_size] = '\0';
+            message_size++;
+
+            DEBUG("Tox", "message size: %d message: %s", message_size, message_line);
+
+            const size_t buffer_size = name_len + message_size + 3;
+            char         buffer[buffer_size];
+
+            snprintf(buffer, buffer_size, "<%s> %s", name, message_line);
+
+            irc_message(irc, channel, buffer);
+
+            next_character = i + 1;
+
+            usleep(250000); // sleep for a quarter of a second to prevent the bot from being kicked for spamming
+        }
+    }
 }
 
 static void friend_request_callback(Tox *tox, const uint8_t *public_key, const uint8_t *UNUSED(data),
