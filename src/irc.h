@@ -6,8 +6,10 @@
 #include <stddef.h>
 
 #define IRC_MAX_CHANNEL_LENGTH 50
+#define IRC_MAX_NICK_LENGTH 50
 #define IRC_PORT_LENGTH 5
 #define IRC_MAX_PASSWORD_LENGTH 50
+#define IRC_MAX_MESSGE_LENGTH 512
 
 struct channel {
     char     name[IRC_MAX_CHANNEL_LENGTH];
@@ -33,8 +35,22 @@ struct irc {
     void (*message_callback)(struct irc *irc, char *message, void *userdata);
 };
 
-typedef struct irc     IRC;
-typedef struct channel Channel;
+enum irc_message_type { IRC_MESSAGE_REPLY, IRC_MESSGAE_PRIVMSG };
+typedef enum irc_message_type irc_message_type;
+
+struct irc_message {
+    irc_message_type type;
+
+    int  code;
+    char server[100];
+    char channel[IRC_MAX_CHANNEL_LENGTH];
+    char nick[IRC_MAX_NICK_LENGTH];
+    char message[IRC_MAX_MESSGE_LENGTH];
+};
+
+typedef struct irc         IRC;
+typedef struct channel     Channel;
+typedef struct irc_message irc_message;
 
 /*
  * Initializes the IRC structure
@@ -76,6 +92,8 @@ void irc_rejoin_channel(IRC *irc, uint32_t index);
  */
 bool irc_leave_channel(IRC *irc, uint32_t index);
 
+void irc_delete_channel(IRC *irc, uint32_t index);
+
 /*
  * Disconnects from the IRC server
  */
@@ -89,7 +107,7 @@ void irc_leave_all_channels(IRC *irc);
 /*
  * Sends the specified message to the specified channel
  */
-int irc_message(IRC *irc, char *channel, char *msg);
+int irc_send_message(IRC *irc, char *channel, char *msg);
 
 /*
  * Frees the IRC struct and irc->channels.
@@ -130,6 +148,8 @@ bool irc_in_channel(const IRC *irc, const char *channel);
  *
  */
 void irc_loop(IRC *irc, void *userdata);
+
+irc_message *irc_parse_message(char *buffer);
 
 /*
  * Set the message callback that will be used in irc_loop

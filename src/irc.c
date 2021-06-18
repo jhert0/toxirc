@@ -7,6 +7,7 @@
 #include "commands/commands.h"
 #include "commands/irc_commands.h"
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -114,17 +115,23 @@ bool irc_join_channel(IRC *irc, char *channel, uint32_t group_num) {
         irc->num_channels++;
 
         memset(&irc->channels[irc->num_channels - 1], 0, sizeof(Channel));
+    } else {
+        irc->num_channels++;
     }
 
     network_send_fmt(irc->sock, "JOIN %s\n", channel);
 
     size_t length = strlen(channel);
     if (length > IRC_MAX_CHANNEL_LENGTH) {
-        length = IRC_MAX_CHANNEL_LENGTH;
+        length = IRC_MAX_CHANNEL_LENGTH - 1;
     }
 
     const uint32_t index = irc->num_channels - 1;
+
     memcpy(irc->channels[index].name, channel, length);
+    irc->channels[index].name[length] = '\0';
+    length++;
+
     irc->channels[index].in_channel  = true;
     irc->channels[index].group_num   = group_num;
     irc->channels[index].name_length = length;
@@ -140,13 +147,17 @@ void irc_rejoin_channel(IRC *irc, uint32_t index) {
 }
 
 bool irc_leave_channel(IRC *irc, uint32_t index) {
+    DEBUG("IRC", "Leaving %s", irc->channels[index].name);
+
     network_send_fmt(irc->sock, "PART %s\n", irc->channels[index].name);
-
-    memset(&irc->channels[index], 0, sizeof(Channel));
-
-    irc->num_channels--;
+    irc_delete_channel(irc, index);
 
     return true;
+}
+
+void irc_delete_channel(IRC *irc, uint32_t index) {
+    memset(&irc->channels[index], 0, sizeof(Channel));
+    irc->num_channels--;
 }
 
 void irc_disconnect(IRC *irc) {
@@ -189,7 +200,7 @@ void irc_free(IRC *irc) {
     irc = NULL;
 }
 
-int irc_message(IRC *irc, char *channel, char *msg) {
+int irc_send_message(IRC *irc, char *channel, char *msg) {
     return network_send_fmt(irc->sock, "PRIVMSG %s :%s\n", channel, msg);
 }
 
@@ -276,6 +287,32 @@ void irc_loop(IRC *irc, void *userdata) {
             }
         }
     }
+}
+
+irc_message *irc_parse_message(char *buffer) {
+    irc_message *message = malloc(sizeof(irc_message));
+    if (!message) {
+        return NULL;
+    }
+
+    memset(message, 0, sizeof(irc_message));
+
+    char user[IRC_MAX_NICK_LENGTH];
+    int  matches = sscanf(buffer, ":%31[^!]!%31[^@]@%99s PRIVMSG %49s :%511[^\r\n]", message->nick, user,
+                         message->server, message->channel, message->message);
+    if (matches == 5) {
+        message->type = IRC_MESSGAE_PRIVMSG;
+    } else {
+        matches = sscanf(buffer, ":%99s %d %49s %49s :%511s[^\r\n]", message->server, &message->code, user,
+                         message->channel, message->message);
+        if (matches != 5) {
+            return NULL;
+        }
+
+        message->type = IRC_MESSAGE_REPLY;
+    }
+
+    return message;
 }
 
 void irc_set_message_callback(IRC *irc, void (*func)(IRC *irc, char *message, void *userdata)) {

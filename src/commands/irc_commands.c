@@ -54,7 +54,7 @@ static bool command_users(Tox *tox, IRC *irc, uint32_t index, char *UNUSED(arg))
         strcat(buffer, " ");
     }
 
-    irc_message(irc, irc->channels[index].name, buffer);
+    irc_send_message(irc, irc->channels[index].name, buffer);
 
     return true;
 }
@@ -71,7 +71,7 @@ static bool command_topic(Tox *tox, IRC *irc, uint32_t index, char *UNUSED(arg))
     char buffer[14 + topic_size];
     sprintf(buffer, "The topic is: %s", topic);
 
-    irc_message(irc, irc->channels[index].name, buffer);
+    irc_send_message(irc, irc->channels[index].name, buffer);
 
     return true;
 }
@@ -81,7 +81,7 @@ static bool command_help(Tox *UNUSED(tox), IRC *irc, uint32_t index, char *UNUSE
     for (int i = 0; irc_commands[i].cmd; i++) {
         char message[strlen(cmd_prefix) + strlen(irc_commands[i].cmd) + strlen(irc_commands[i].desc) + 3];
         sprintf(message, "%s%s: %s", cmd_prefix, irc_commands[i].cmd, irc_commands[i].desc);
-        irc_message(irc, irc->channels[index].name, message);
+        irc_send_message(irc, irc->channels[index].name, message);
     }
 
     return true;
@@ -91,7 +91,7 @@ static bool command_characters(Tox *UNUSED(tox), IRC *irc, uint32_t index, char 
     for (unsigned int i = 0; i < CHAR_MAX; i++) {
         char message[strlen(settings.characters[i].prefix) + strlen(settings.characters[i].desc) + 2];
         sprintf(message, "%s: %s", settings.characters[i].prefix, settings.characters[i].desc);
-        irc_message(irc, irc->channels[index].name, message);
+        irc_send_message(irc, irc->channels[index].name, message);
     }
 
     return true;

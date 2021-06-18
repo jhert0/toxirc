@@ -11,6 +11,7 @@
 #include "../settings.h"
 #include "../tox.h"
 #include "../utils.h"
+#include "../save.h"
 
 static bool command_invite(Tox *tox, IRC *irc, uint32_t index, char *arg);
 static bool command_join(Tox *tox, IRC *irc, uint32_t index, char *arg);
@@ -101,6 +102,8 @@ static bool command_join(Tox *tox, IRC *irc, uint32_t fid, char *arg) {
     tox_conference_set_title(tox, group_num, (uint8_t *)arg, strlen(arg), NULL);
     tox_conference_invite(tox, fid, group_num, NULL);
 
+    save_write(tox, SAVE_FILE);
+
     return true;
 }
 
@@ -122,13 +125,20 @@ static bool command_leave(Tox *tox, IRC *irc, uint32_t fid, char *arg) {
     }
 
     tox_conference_delete(tox, irc->channels[index].group_num, NULL);
-
     irc_leave_channel(irc, index);
+
+    save_write(tox, SAVE_FILE);
 
     return true;
 }
 
 static bool command_list(Tox *tox, IRC *irc, uint32_t fid, char *UNUSED(arg)) {
+    if (irc->num_channels == 0) {
+        tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (const uint8_t *)"I'm currently in no channels.",
+                                strlen("I'm currently in no channels.") - 1, NULL);
+        return true;
+    }
+
     for (uint32_t i = 0; i < irc->num_channels; i++) {
         if (irc->channels[i].in_channel) {
             tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (const uint8_t *)irc->channels[i].name,
@@ -196,6 +206,8 @@ static bool command_la(Tox *tox, IRC *irc, uint32_t fid, char *UNUSED(arg)) {
     }
 
     irc_leave_all_channels(irc);
+
+    save_write(tox, SAVE_FILE);
 
     return true;
 }
@@ -272,7 +284,7 @@ static bool command_warn(Tox *tox, IRC *irc, uint32_t fid, char *UNUSED(arg)) {
         snprintf(warning, sizeof(warning), "%s is about to be shutdown. Sorry for the inconvenience.", settings.name);
 
     for (uint32_t i = 0; i < irc->num_channels; i++) {
-        irc_message(irc, irc->channels[i].name, warning);
+        irc_send_message(irc, irc->channels[i].name, warning);
         tox_conference_send_message(tox, irc->channels[i].group_num, TOX_MESSAGE_TYPE_NORMAL, (const uint8_t *)warning,
                                     length, NULL);
     }
