@@ -136,7 +136,7 @@ bool irc_join_channel(IRC *irc, char *channel, uint32_t group_num) {
     irc->channels[index].group_num   = group_num;
     irc->channels[index].name_length = length;
 
-    DEBUG("IRC", "Joining channel: %s", channel);
+    DEBUG("IRC", "Joining channel: %s (%d)", channel, irc->num_channels);
 
     return true;
 }
@@ -147,7 +147,7 @@ void irc_rejoin_channel(IRC *irc, uint32_t index) {
 }
 
 bool irc_leave_channel(IRC *irc, uint32_t index) {
-    DEBUG("IRC", "Leaving %s", irc->channels[index].name);
+    DEBUG("IRC", "Leaving %s (%d)", irc->channels[index].name, index);
 
     network_send_fmt(irc->sock, "PART %s\n", irc->channels[index].name);
     irc_delete_channel(irc, index);
@@ -156,6 +156,8 @@ bool irc_leave_channel(IRC *irc, uint32_t index) {
 }
 
 void irc_delete_channel(IRC *irc, uint32_t index) {
+    DEBUG("IRC", "Deleting %s (%d)", irc->channels[index].name, index);
+
     memset(&irc->channels[index], 0, sizeof(Channel));
     irc->num_channels--;
 }

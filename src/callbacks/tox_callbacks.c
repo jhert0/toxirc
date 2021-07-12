@@ -132,7 +132,7 @@ static void group_message_callback(Tox *tox, uint32_t groupnumber, uint32_t peer
 
     char *channel = irc_get_channel_by_group(irc, groupnumber);
     if (!channel) {
-        DEBUG("Tox", "Could not get channel name, unable to send message.");
+        DEBUG("Tox", "Could not get channel name, unable to send message for group: %u.", groupnumber);
         return;
     }
 

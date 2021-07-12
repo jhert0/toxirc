@@ -120,7 +120,7 @@ static bool command_leave(Tox *tox, IRC *irc, uint32_t fid, char *arg) {
 
     uint32_t index = irc_get_channel_index(irc, arg);
     if (index == UINT32_MAX) {
-        DEBUG("Commands", "Could not get irc channel index.");
+        DEBUG("Commands", "Could not get irc channel index for: %s.", arg);
         return false;
     }
 
@@ -227,6 +227,7 @@ static bool command_name(Tox *tox, IRC *UNUSED(irc), uint32_t fid, char *arg) {
 
     tox_self_set_name(tox, (const uint8_t *)arg, strlen(arg), NULL);
 
+    save_write(tox, SAVE_FILE);
     settings_save(SETTINGS_FILE);
 
     return true;

@@ -24,6 +24,11 @@ char *command_parse(char *msg, size_t msg_length, size_t *cmd_length) {
         if (msg[i] == ' ' || msg[i] == '\0') {
             *cmd_length = i;
             cmd         = malloc(*cmd_length);
+            if (!cmd) {
+                *cmd_length = 0;
+                return NULL;
+            }
+
             memcpy(cmd, msg, *cmd_length);
             break;
         }
