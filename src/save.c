@@ -51,9 +51,7 @@ Tox *save_load(char *path, int *status) {
     tox_options_set_udp_enabled(&options, settings.udp);
     tox_options_set_ipv6_enabled(&options, settings.ipv6);
 
-    int   fd = open(path, O_RDWR | O_CREAT,
-                  S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); // TODO: this needs to be improved
-    FILE *fp = fdopen(fd, "rb");
+    FILE *fp = fopen(path, "rb");
     if (!fp) {
         DEBUG("Save", "Could not open %s", path);
         return NULL;
