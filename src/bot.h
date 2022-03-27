@@ -18,12 +18,14 @@ struct Bot {
 
 typedef struct Bot Bot;
 
-Bot *bot_init();
+extern Bot bot;
 
-bool bot_add_irc_server(Bot *bot, IRC *irc);
+bool bot_init();
 
-void bot_remove_irc_server(Bot *bot, uint32_t index);
+bool bot_add_irc_server(IRC *irc);
 
-void bot_free(Bot *bot);
+void bot_remove_irc_server(uint32_t index);
+
+void bot_kill();
 
 #endif
