@@ -6,6 +6,7 @@
 
 #include "commands.h"
 
+#include "../bot.h"
 #include "../logging.h"
 #include "../macros.h"
 #include "../settings.h"
@@ -187,9 +188,13 @@ static bool command_info(Tox *tox, IRC *UNUSED(irc), uint32_t fid, char *UNUSED(
         }
     }
 
+    char time_str[15];
+    strftime(time_str, 15, "%m/%d/%Y", localtime(&bot.started));
+
     char message[TOX_MAX_MESSAGE_LENGTH];
     int  length =
-        snprintf(message, sizeof(message), "I am friends with %d people. %d of them are online.", num_frends, online);
+        snprintf(message, sizeof(message), "I am friends with %d people, %d of them are online. Started %s.",
+                 num_frends, online, time_str);
 
     tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)message, length, NULL);
 
