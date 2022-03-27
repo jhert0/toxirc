@@ -69,7 +69,6 @@ static void message_callback(IRC *irc, char *buffer, void *arg) {
         }
 
         tox_group_send_msg(tox, group, message->nick, message->message);
-        free(message);
     } else {
         DEBUG("IRC Callbacks", "Recieved reply with code: %d for channel: %s", message->code, message->channel);
 
@@ -89,6 +88,8 @@ static void message_callback(IRC *irc, char *buffer, void *arg) {
             save_write(tox, SAVE_FILE);
         }
     }
+
+    free(message);
 }
 
 void irc_callbacks_setup(IRC *irc) {

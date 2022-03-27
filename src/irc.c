@@ -308,6 +308,7 @@ irc_message *irc_parse_message(char *buffer) {
         matches = sscanf(buffer, ":%99s %d %49s %49s :%511s[^\r\n]", message->server, &message->code, user,
                          message->channel, message->message);
         if (matches != 5) {
+            free(message);
             return NULL;
         }
 
