@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "bot.h"
 #include "tox.h"
@@ -24,6 +25,8 @@ Bot *bot_init() {
         DEBUG("Bot", "Could not create tox instance.");
         return NULL;
     }
+
+    bot->started = time(NULL);
 
     return bot;
 }

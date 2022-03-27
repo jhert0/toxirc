@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <tox/tox.h>
+#include <time.h>
 #include "irc.h"
 
 struct Bot {
@@ -11,6 +12,8 @@ struct Bot {
     IRC **   irc;
     uint32_t num_servers;
     uint32_t server_size;
+
+    time_t started;
 };
 
 typedef struct Bot Bot;
