@@ -110,6 +110,11 @@ void irc_leave_all_channels(IRC *irc);
 int irc_send_message(IRC *irc, char *channel, char *msg);
 
 /*
+ * Sends the specified action message to the specified channel
+ */
+int irc_send_action_message(IRC *irc, char *channel, char *msg);
+
+/*
  * Frees the IRC struct and irc->channels.
  * If the connection hasn't been closed it will also disconnect from the IRC
  * server

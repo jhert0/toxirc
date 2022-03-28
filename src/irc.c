@@ -206,6 +206,10 @@ int irc_send_message(IRC *irc, char *channel, char *msg) {
     return network_send_fmt(irc->sock, "PRIVMSG %s :%s\n", channel, msg);
 }
 
+int irc_send_action_message(IRC *irc, char *channel, char *msg) {
+    return network_send_fmt(irc->sock, "PRIVMSG %s :\001ACTION %s\001\n", channel, msg);
+}
+
 uint32_t irc_get_channel_index(const IRC *irc, const char *channel) {
     for (uint32_t i = 0; i < irc->num_channels; i++) {
         if (strcmp(channel, irc->channels[i].name) == 0) {
