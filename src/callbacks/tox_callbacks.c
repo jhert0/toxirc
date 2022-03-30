@@ -83,38 +83,41 @@ static void group_message_callback(Tox *tox, uint32_t groupnumber, uint32_t peer
 
     length++;
 
-    char *cmd_prefix = settings_get_prefix(CHAR_CMD_PREFIX);
-    if (command_prefix_cmp((char *)message, cmd_prefix)) {
-        size_t cmd_length;
-        char * cmd = command_parse(msg, length, &cmd_length);
-        if (!cmd) {
+    if (settings.commands_enabled) {
+        char *cmd_prefix = settings_get_prefix(CHAR_CMD_PREFIX);
+        if (command_prefix_cmp((char *)message, cmd_prefix)) {
+
+            size_t cmd_length;
+            char * cmd = command_parse(msg, length, &cmd_length);
+            if (!cmd) {
+                return;
+            }
+
+            size_t arg_length;
+            char * arg = command_parse_arg(msg, length, cmd_length, &arg_length);
+
+            bool valid = false;
+            for (int i = 0; group_commands[i].cmd; i++) {
+                if (strncmp(cmd, group_commands[i].cmd, strlen(group_commands[i].cmd)) == 0) {
+                    group_commands[i].func(tox, irc, groupnumber, NULL);
+                    valid = true;
+                }
+            }
+
+            free(cmd);
+            if (arg) {
+                free(arg);
+            }
+
+            if (!valid) {
+                tox_conference_send_message(
+                    tox, groupnumber, TOX_MESSAGE_TYPE_NORMAL,
+                    (uint8_t *)"Invalid command send me help to find out what commands I support",
+                    sizeof("Invalid command send me help to find out what commands I support") - 1, NULL);
+            }
+
             return;
         }
-
-        size_t arg_length;
-        char * arg = command_parse_arg(msg, length, cmd_length, &arg_length);
-
-        bool valid = false;
-        for (int i = 0; group_commands[i].cmd; i++) {
-            if (strncmp(cmd, group_commands[i].cmd, strlen(group_commands[i].cmd)) == 0) {
-                group_commands[i].func(tox, irc, groupnumber, NULL);
-                valid = true;
-            }
-        }
-
-        free(cmd);
-        if (arg) {
-            free(arg);
-        }
-
-        if (!valid) {
-            tox_conference_send_message(tox, groupnumber, TOX_MESSAGE_TYPE_NORMAL,
-                                        (uint8_t *)"Invalid command send me help to find out what commands I support",
-                                        sizeof("Invalid command send me help to find out what commands I support") - 1,
-                                        NULL);
-        }
-
-        return;
     }
 
     uint8_t                       name[TOX_MAX_NAME_LENGTH];
@@ -151,8 +154,7 @@ static void group_message_callback(Tox *tox, uint32_t groupnumber, uint32_t peer
 
             snprintf(buffer, buffer_size, "<%s> %s", name, message_line);
 
-            if (type == TOX_MESSAGE_TYPE_ACTION)
-            {
+            if (type == TOX_MESSAGE_TYPE_ACTION) {
                 irc_send_action_message(irc, channel, buffer);
             } else {
                 irc_send_message(irc, channel, buffer);

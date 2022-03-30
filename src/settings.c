@@ -40,6 +40,7 @@ SETTINGS settings = {
     .port = "6667",
     .default_channel = "#toxirc",
     .verbose = true,
+    .commands_enabled = true,
     .characters = {
         {"!", "Command prefix."},
         {"~", "Prevents the message from being synced."},
@@ -73,6 +74,7 @@ void settings_save(char *file) {
     settings_write_string(file, sections[SECTION_BOT], "master", settings.master);
     settings_write_string(file, sections[SECTION_BOT], "default_channel", settings.default_channel);
     settings_write_bool(file, sections[SECTION_BOT], "verbose", settings.verbose);
+    settings_write_bool(file, sections[SECTION_BOT], "commands_enabled", settings.commands_enabled);
     settings_write_string(file, sections[SECTION_BOT], "cmd_prefix", settings.characters[CHAR_CMD_PREFIX].prefix);
     settings_write_string(file, sections[SECTION_BOT], "dont_sync_prefix",
                           settings.characters[CHAR_NO_SYNC_PREFIX].prefix);
@@ -115,6 +117,8 @@ static void parse_bot_section(const char *key, const char *value) {
         strcpy(settings.default_channel, value);
     } else if (strcmp(key, "verbose") == 0) {
         settings.verbose = STR_TO_BOOL(value);
+    } else if (strcmp(key, "commands_enabled") == 0) {
+        settings.commands_enabled = STR_TO_BOOL(value);
     } else if (strcmp(key, "cmd_prefix") == 0) {
         size_t length = strlen(value);
         if (length > MAX_PREFIX) {

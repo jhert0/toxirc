@@ -37,6 +37,7 @@ struct Settings {
     char              name[TOX_MAX_NAME_LENGTH];
     char              master[MASTER_KEY_SIZE + 1];
     bool              verbose;
+    bool              commands_enabled;
     SpecialCharacters characters[CHAR_MAX];
 
     // Tox

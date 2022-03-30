@@ -31,52 +31,49 @@ static void message_callback(IRC *irc, char *buffer, void *arg) {
             return;
         }
 
-        //If the incoming message is a private message from a user do not process it as a command.
-        //Also ignore messages from the different services
-        //Temporary fix for a crash. https://github.com/endoffile78/toxirc/issues/10
-        if( (strstr(message->channel, irc->nick) != NULL)
-            && (strstr(message->nick, "alis") == NULL)
-            && (strstr(message->nick, "ChanServ") == NULL)
-            && (strstr(message->nick, "MemoServ") == NULL)
-            && (strstr(message->nick, "NickServ") == NULL)
-            && (strstr(message->nick, "OperServ") == NULL)
-            && (strstr(message->nick, "ProjectServ") == NULL)
-            && (strstr(message->nick, "SaslServ") == NULL)
-            && (strstr(message->nick, "CatServ") == NULL)
-            ) {
+        // If the incoming message is a private message from a user do not process it as a command.
+        // Also ignore messages from the different services
+        // Temporary fix for a crash. https://github.com/endoffile78/toxirc/issues/10
+        if ((strstr(message->channel, irc->nick) != NULL) && (strstr(message->nick, "alis") == NULL) &&
+            (strstr(message->nick, "ChanServ") == NULL) && (strstr(message->nick, "MemoServ") == NULL) &&
+            (strstr(message->nick, "NickServ") == NULL) && (strstr(message->nick, "OperServ") == NULL) &&
+            (strstr(message->nick, "ProjectServ") == NULL) && (strstr(message->nick, "SaslServ") == NULL) &&
+            (strstr(message->nick, "CatServ") == NULL)) {
 
-                //Optionally can reply with a message here stating that this is a bot.
+            // Optionally can reply with a message here stating that this is a bot.
 
         } else {
-            char *cmd_prefix = settings_get_prefix(CHAR_CMD_PREFIX);
-            if (command_prefix_cmp(message->message, cmd_prefix)) {
-                size_t msg_length = strlen(message->message);
+            if (settings.commands_enabled) {
+                char *cmd_prefix = settings_get_prefix(CHAR_CMD_PREFIX);
+                if (command_prefix_cmp(message->message, cmd_prefix)) {
+                    size_t msg_length = strlen(message->message);
 
-                size_t cmd_length;
-                char * cmd = command_parse(message->message, msg_length, &cmd_length);
-                if (!cmd) {
-                    free(message);
-                    return;
-                }
-
-                size_t arg_length;
-                char * arg = command_parse_arg(message->message, msg_length, cmd_length, &arg_length);
-
-                for (int i = 0; irc_commands[i].cmd; i++) {
-                    if (strncmp(cmd, irc_commands[i].cmd, strlen(irc_commands[i].cmd)) == 0) {
-                        const uint32_t channel_index = irc_get_channel_index(irc, message->channel);
-                        irc_commands[i].func(tox, irc, channel_index, NULL);
+                    size_t cmd_length;
+                    char * cmd = command_parse(message->message, msg_length, &cmd_length);
+                    if (!cmd) {
+                        free(message);
+                        return;
                     }
+
+                    size_t arg_length;
+                    char * arg = command_parse_arg(message->message, msg_length, cmd_length, &arg_length);
+
+                    for (int i = 0; irc_commands[i].cmd; i++) {
+                        if (strncmp(cmd, irc_commands[i].cmd, strlen(irc_commands[i].cmd)) == 0) {
+                            const uint32_t channel_index = irc_get_channel_index(irc, message->channel);
+                            irc_commands[i].func(tox, irc, channel_index, NULL);
+                        }
+                    }
+
+                    free(cmd);
+                    if (arg) {
+                        free(arg);
+                    }
+
+                    free(message);
+
+                    return; // dont sync commands
                 }
-
-                free(cmd);
-                if (arg) {
-                    free(arg);
-                }
-
-                free(message);
-
-                return; // dont sync commands
             }
         }
 
