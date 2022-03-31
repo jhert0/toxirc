@@ -15,6 +15,7 @@
 
 enum SECTION {
     SECTION_BOT,
+    SECTION_COMMANDS,
     SECTION_TOX,
     SECTION_IRC,
     SECTION_UNKNOWN,
@@ -23,10 +24,7 @@ enum SECTION {
 typedef enum SECTION SECTION;
 
 static const char *sections[SECTION_UNKNOWN + 1] = {
-    "Bot",
-    "Tox",
-    "IRC",
-    NULL,
+    "Bot", "Commands", "Tox", "IRC", NULL,
 };
 
 // default settings
@@ -74,11 +72,13 @@ void settings_save(char *file) {
     settings_write_string(file, sections[SECTION_BOT], "master", settings.master);
     settings_write_string(file, sections[SECTION_BOT], "default_channel", settings.default_channel);
     settings_write_bool(file, sections[SECTION_BOT], "verbose", settings.verbose);
-    settings_write_bool(file, sections[SECTION_BOT], "commands_enabled", settings.commands_enabled);
-    settings_write_string(file, sections[SECTION_BOT], "cmd_prefix", settings.characters[CHAR_CMD_PREFIX].prefix);
     settings_write_string(file, sections[SECTION_BOT], "dont_sync_prefix",
                           settings.characters[CHAR_NO_SYNC_PREFIX].prefix);
     settings_write_int(file, sections[SECTION_BOT], "channel_limit", settings.channel_limit);
+
+    // Commands
+    settings_write_bool(file, sections[SECTION_COMMANDS], "commands_enabled", settings.commands_enabled);
+    settings_write_string(file, sections[SECTION_COMMANDS], "cmd_prefix", settings.characters[CHAR_CMD_PREFIX].prefix);
 
     // Tox
     settings_write_bool(file, sections[SECTION_TOX], "ipv6", settings.ipv6);
@@ -100,6 +100,16 @@ static SECTION get_section(const char *section) {
     return SECTION_UNKNOWN;
 }
 
+static void parse_special_character(const char *value, enum prefix_index index) {
+    size_t length = strlen(value);
+    if (length > MAX_PREFIX) {
+        length = MAX_PREFIX;
+    }
+
+    strncpy(settings.characters[index].prefix, value, length);
+    settings.characters[index].prefix[length++] = '\0';
+}
+
 static void parse_bot_section(const char *key, const char *value) {
     if (strcmp(key, "name") == 0) {
         strcpy(settings.name, value);
@@ -117,15 +127,10 @@ static void parse_bot_section(const char *key, const char *value) {
         strcpy(settings.default_channel, value);
     } else if (strcmp(key, "verbose") == 0) {
         settings.verbose = STR_TO_BOOL(value);
-    } else if (strcmp(key, "commands_enabled") == 0) {
+    } else if (strcmp(key, "commands_enabled") == 0) { // TODO: remove this at some point
         settings.commands_enabled = STR_TO_BOOL(value);
-    } else if (strcmp(key, "cmd_prefix") == 0) {
-        size_t length = strlen(value);
-        if (length > MAX_PREFIX) {
-            length = MAX_PREFIX;
-        }
-        strncpy(settings.characters[CHAR_CMD_PREFIX].prefix, value, length);
-        settings.characters[CHAR_CMD_PREFIX].prefix[length++] = '\0';
+    } else if (strcmp(key, "cmd_prefix") == 0) { // TODO: remove this at some point
+        parse_special_character(value, CHAR_CMD_PREFIX);
     } else if (strcmp(key, "dont_sync_prefix") == 0) {
         size_t length = strlen(value);
         if (length > MAX_PREFIX) {
@@ -135,6 +140,14 @@ static void parse_bot_section(const char *key, const char *value) {
         settings.characters[CHAR_NO_SYNC_PREFIX].prefix[length++] = '\0';
     } else if (strcmp(key, "channel_limit") == 0) {
         settings.channel_limit = atol(value);
+    }
+}
+
+static void parse_commands_section(const char *key, const char *value) {
+    if (strcmp(key, "enabled") == 0) {
+        settings.commands_enabled = STR_TO_BOOL(value);
+    } else if (strcmp(key, "cmd_prefix") == 0) {
+        parse_special_character(value, CHAR_CMD_PREFIX);
     }
 }
 
@@ -167,6 +180,9 @@ static int settings_parser(const char *section, const char *key, const char *val
     switch (sec) {
         case SECTION_BOT:
             parse_bot_section(key, value);
+            break;
+        case SECTION_COMMANDS:
+            parse_commands_section(key, value);
             break;
         case SECTION_TOX:
             parse_tox_section(key, value);
