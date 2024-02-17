@@ -4,13 +4,9 @@
 #include "network.h"
 #include "settings.h"
 
-#include "commands/commands.h"
-#include "commands/irc_commands.h"
-
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -305,7 +301,7 @@ irc_message *irc_parse_message(char *buffer) {
 
     char user[IRC_MAX_NICK_LENGTH];
     int  matches = sscanf(buffer, ":%31[^!]!%31[^@]@%99s PRIVMSG %49s :%511[^\r\n]", message->nick, user,
-                         message->server, message->channel, message->message);
+                          message->server, message->channel, message->message);
     if (matches == 5) {
         message->type = IRC_MESSGAE_PRIVMSG;
     } else {

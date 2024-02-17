@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <tox/tox.h>
 
 static bool command_users(Tox *tox, IRC *irc, uint32_t index, char *arg);
 static bool command_topic(Tox *tox, IRC *irc, uint32_t index, char *arg);
@@ -33,13 +34,13 @@ static bool command_users(Tox *tox, IRC *irc, uint32_t index, char *UNUSED(arg))
     size_t names_size = 0;
     size_t name_lens[peer_count];
     for (uint32_t i = 0; i < peer_count; i++) {
-        TOX_ERR_CONFERENCE_PEER_QUERY err;
-        name_lens[i] = tox_conference_peer_get_name_size(tox, group_number, i, &err);
-        if (name_lens[i] == 0 || err != TOX_ERR_CONFERENCE_PEER_QUERY_OK) {
+        Tox_Err_Group_Peer_Query err;
+        name_lens[i] = tox_group_peer_get_name_size(tox, group_number, i, &err);
+        if (name_lens[i] == 0 || err != TOX_ERR_GROUP_PEER_QUERY_OK) {
             memcpy(names[i], "unknown", 7);
             name_lens[i] = 7;
         } else {
-            tox_conference_peer_get_name(tox, group_number, i, names[i], NULL);
+            tox_group_peer_get_name(tox, group_number, i, names[i], NULL);
         }
         names[i][name_lens[i]] = '\0';
         names_size += name_lens[i];
@@ -61,10 +62,10 @@ static bool command_users(Tox *tox, IRC *irc, uint32_t index, char *UNUSED(arg))
 
 static bool command_topic(Tox *tox, IRC *irc, uint32_t index, char *UNUSED(arg)) {
     uint32_t group_num  = irc->channels[index].group_num;
-    size_t   topic_size = tox_conference_get_title_size(tox, group_num, NULL);
+    size_t   topic_size = tox_group_get_topic_size(tox, group_num, NULL);
 
     uint8_t topic[topic_size];
-    tox_conference_get_title(tox, group_num, topic, NULL);
+    tox_group_get_topic(tox, group_num, topic, NULL);
     topic[topic_size] = '\0';
     topic_size++;
 

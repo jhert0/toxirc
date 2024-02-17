@@ -8,6 +8,7 @@
 
 #include "callbacks/tox_callbacks.h"
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -84,7 +85,7 @@ void tox_group_send_msg(Tox *tox, uint32_t group_num, char *nick, char *msg) {
     char   message[TOX_MAX_MESSAGE_LENGTH];
     size_t length = snprintf(message, sizeof(message), "<%s> %s", nick, msg);
 
-    tox_conference_send_message(tox, group_num, type, (uint8_t *)message, length, NULL);
+    tox_group_send_message(tox, group_num, type, (const uint8_t *)message, length, NULL);
 }
 
 bool tox_is_friend_master(Tox *tox, uint32_t fid) {

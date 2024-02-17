@@ -1,8 +1,10 @@
 #include "friend_commands.h"
 
+#include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <tox/tox.h>
 
 #include "commands.h"
 
@@ -60,7 +62,7 @@ static bool command_invite(Tox *tox, IRC *irc, uint32_t fid, char *arg) {
         return false;
     }
 
-    tox_conference_invite(tox, fid, irc->channels[index].group_num, NULL);
+    tox_group_invite_friend(tox, irc->channels[index].group_num, fid, NULL);
 
     return true;
 }
@@ -91,8 +93,9 @@ static bool command_join(Tox *tox, IRC *irc, uint32_t fid, char *arg) {
         return false;
     }
 
-    TOX_ERR_CONFERENCE_NEW err;
-    uint32_t               group_num = tox_conference_new(tox, &err);
+    Tox_Err_Group_New err;
+    uint32_t          group_num = tox_group_new(tox, TOX_GROUP_PRIVACY_STATE_PUBLIC, (uint8_t *)arg, strlen(arg),
+                                                (uint8_t *)settings.name, strlen(settings.name), &err);
     if (group_num == UINT32_MAX) {
         DEBUG("Tox", "Could not create groupchat. Error number: %d", err);
         return false;
@@ -100,8 +103,8 @@ static bool command_join(Tox *tox, IRC *irc, uint32_t fid, char *arg) {
 
     irc_join_channel(irc, arg, group_num);
 
-    tox_conference_set_title(tox, group_num, (uint8_t *)arg, strlen(arg), NULL);
-    tox_conference_invite(tox, fid, group_num, NULL);
+    tox_group_set_topic(tox, group_num, (uint8_t *)arg, strlen(arg), NULL);
+    tox_group_invite_friend(tox, group_num, fid, NULL);
 
     save_write(tox, SAVE_FILE);
 
@@ -125,7 +128,7 @@ static bool command_leave(Tox *tox, IRC *irc, uint32_t fid, char *arg) {
         return false;
     }
 
-    tox_conference_delete(tox, irc->channels[index].group_num, NULL);
+    tox_group_leave(tox, index, (uint8_t *)"no longer syncing...", sizeof("no longer syncing...") - 1, NULL);
     irc_leave_channel(irc, index);
 
     save_write(tox, SAVE_FILE);
@@ -192,9 +195,8 @@ static bool command_info(Tox *tox, IRC *UNUSED(irc), uint32_t fid, char *UNUSED(
     strftime(time_str, 15, "%m/%d/%Y", localtime(&bot.started));
 
     char message[TOX_MAX_MESSAGE_LENGTH];
-    int  length =
-        snprintf(message, sizeof(message), "I am friends with %d people, %d of them are online. Started %s.",
-                 num_frends, online, time_str);
+    int  length = snprintf(message, sizeof(message), "I am friends with %d people, %d of them are online. Started %s.",
+                           num_frends, online, time_str);
 
     tox_friend_send_message(tox, fid, TOX_MESSAGE_TYPE_NORMAL, (uint8_t *)message, length, NULL);
 
@@ -207,7 +209,8 @@ static bool command_la(Tox *tox, IRC *irc, uint32_t fid, char *UNUSED(arg)) {
     }
 
     for (uint32_t i = 0; i < irc->num_channels; i++) {
-        tox_conference_delete(tox, irc->channels[i].group_num, NULL);
+        tox_group_leave(tox, irc->channels[i].group_num, (uint8_t *)"no longer syncing...",
+                        sizeof("no longer syncing...") - 1, NULL);
     }
 
     irc_leave_all_channels(irc);
@@ -291,8 +294,8 @@ static bool command_warn(Tox *tox, IRC *irc, uint32_t fid, char *UNUSED(arg)) {
 
     for (uint32_t i = 0; i < irc->num_channels; i++) {
         irc_send_message(irc, irc->channels[i].name, warning);
-        tox_conference_send_message(tox, irc->channels[i].group_num, TOX_MESSAGE_TYPE_NORMAL, (const uint8_t *)warning,
-                                    length, NULL);
+        tox_group_send_message(tox, irc->channels[i].group_num, TOX_MESSAGE_TYPE_NORMAL, (const uint8_t *)warning,
+                               length, NULL);
     }
 
     return true;

@@ -1,5 +1,7 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <tox/tox.h>
 #include <unistd.h>
 #include <string.h>
 #include <signal.h>
@@ -50,26 +52,28 @@ int main(void) {
 
     bot_add_irc_server(irc);
 
-    uint32_t num_groups = tox_conference_get_chatlist_size(bot.tox);
+    uint32_t num_groups = tox_group_get_number_groups(bot.tox);
     if (num_groups > 0) {
         uint32_t groups[num_groups];
         tox_conference_get_chatlist(bot.tox, groups);
 
         for (uint32_t i = 0; i < num_groups; i++) {
-            uint32_t title_size = tox_conference_get_title_size(bot.tox, groups[i], NULL);
+            uint32_t title_size = tox_group_get_topic_size(bot.tox, groups[i], NULL);
             if (title_size == 0) {
                 continue;
             }
 
             uint8_t title[title_size];
-            tox_conference_get_title(bot.tox, groups[i], title, NULL);
+            tox_group_get_topic(bot.tox, groups[i], title, NULL);
             title[title_size] = '\0';
 
             irc_join_channel(irc, (char *)title, groups[i]);
         }
     } else {
-        TOX_ERR_CONFERENCE_NEW err;
-        uint32_t               group_num = tox_conference_new(bot.tox, &err);
+        Tox_Err_Group_New err;
+        uint32_t          group_num = tox_group_new(bot.tox, TOX_GROUP_PRIVACY_STATE_PUBLIC,
+                                           (const uint8_t *)settings.default_channel, strlen(settings.default_channel),
+                                           (const uint8_t *)settings.name, strlen(settings.name), &err);
         if (group_num == UINT32_MAX) {
             DEBUG("main", "Could not create groupchat for default group. Error number: %u", err);
             irc_disconnect(irc);
@@ -77,8 +81,8 @@ int main(void) {
             return 4;
         }
 
-        tox_conference_set_title(bot.tox, group_num, (const uint8_t *)settings.default_channel,
-                                 strlen(settings.default_channel), NULL);
+        tox_group_set_topic(bot.tox, group_num, (const uint8_t *)settings.default_channel,
+                            strlen(settings.default_channel), NULL);
         irc_join_channel(irc, settings.default_channel, group_num);
     }
 
